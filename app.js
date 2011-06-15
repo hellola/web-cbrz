@@ -31,21 +31,22 @@ config.init(app);
 // Routes
 
 app.get('/', function(req, res){
-  res.render('index', {
-    title: 'web cbr and cbz reader'
-  });
+   res.redirect('/list/');
 });
 
 app.get('/openfile/:path', function(req, res){
-  res.render('list', {
+  var files = webcbr.openfile(req.params.path,res,app);
+  var tempFolder = req.params.path.split('_');
+  var fileFolder = tempFolder[tempFolder.length - 1];
+  res.render('fileList', {
     title: 'web cbr and cbz reader',
-    locals:{ list: webcbr.openfile(req.params.path,res,app)}
+    locals:{ list: files,
+             firstFile : '/read/'+fileFolder }
   });
 });
 
-app.get('/viewImage/:image', function(req, res){
-        console.log(app.settings.tempdir+'/'+req.params.image);
-        res.sendfile(app.settings.tempdir+'/'+req.params.image);
+app.get('/viewImage/:comicBookName/:image', function(req, res){
+    res.sendfile(app.settings.tempdir+'/'+req.params.comicBookName+'/'+req.params.image.replace('\n',''));
 });
 
 
@@ -57,13 +58,20 @@ app.get(/\/list\/(.*$)/, function(req, res){
 });
 
 
-app.get('/read/', function(req, res){
+app.get('/read/:comicBookName', function(req, res){
+  var ff = webcbr.read(req.params.comicBookName,app)
   res.render('read', {
     title: 'web cbr and cbz reader',
-    locals:{ list: webcbr.read(req.params[0],app)}
+    locals:{ firstFile:ff,currentBook: req.params.comicBookName}
   });
 });
 
+app.get('/getNextFile/:comicBookName/:currentFile', function(req, res){
+  var ff = webcbr.getNextFile(req.params.comicBookName,req.params.currentFile.replace('\n',''),app);
+  res.partial('ajaxResponse', {
+    locals:{ fileName:ff }
+  });
+});
 
 app.listen(3000,'0.0.0.0');
 console.log("Express server listening on port %d",app.address().port);
