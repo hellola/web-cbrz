@@ -1,8 +1,8 @@
 var fs = require('fs');
-var webcbr = {}
 var util = require('util'),
     exec = require('child_process').exec,
     child;
+var webcbr = {}
 
 var extractCbz = function(filepath, tempdirpath) {
     var cmd = '';
@@ -14,6 +14,7 @@ var extractCbz = function(filepath, tempdirpath) {
     {
         cmd = 'unzip'+' "'+filepath + '" -d "'+ tempdirpath + '"';
     }
+    console.log(cmd);
     child = exec(cmd,
         function(error,stdout,stderr) {
             console.log('stdout: '+ stdout);
@@ -24,9 +25,9 @@ var extractCbz = function(filepath, tempdirpath) {
         });
 }
 
-var openfile = function(path,res) {
+var openfile = function(path,res,app) {
     var npath = path.replace(/_/g,'/');
-    var tempdir ="";//todo config value
+    var tempdir;//todo config value
     if (tempdir == null){
         tempdir = app.settings.tempdir;
         console.log(tempdir);
@@ -45,10 +46,9 @@ var openfile = function(path,res) {
 
 var read = function(fileindex, app) {
     //get a list of files in the current dir
-    var html = '<div><table><tr><td></td></tr></table></div>';
+    var html = '<a class="prev" href="/viewImage/Amazing Spider-Man 546-.jpg" imageIndex="000">PrevImage</a><a class="next" href="/viewImage/Amazing Spider-Man 546-.jpg" imageIndex="000">Next Image</a><div class="placeholder"></div>';
     return html; 
 }
-
 
 var list = function(path,app) {
     if (path == '') { path = app.settings.defaulttempdir} //todo:replace with config value

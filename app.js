@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -6,7 +5,6 @@
 var express = require('express');
 var webcbr = require('./webcbr');
 var config = require('./config');
-
 
 var app = module.exports = express.createServer();
 // Configuration
@@ -38,14 +36,18 @@ app.get('/', function(req, res){
   });
 });
 
-
-
 app.get('/openfile/:path', function(req, res){
   res.render('list', {
     title: 'web cbr and cbz reader',
-    locals:{ list: webcbr.openfile(req.params.path,res)}
+    locals:{ list: webcbr.openfile(req.params.path,res,app)}
   });
 });
+
+app.get('/viewImage/:image', function(req, res){
+        console.log(app.settings.tempdir+'/'+req.params.image);
+        res.sendfile(app.settings.tempdir+'/'+req.params.image);
+});
+
 
 app.get(/\/list\/(.*$)/, function(req, res){
   res.render('list', {
@@ -55,7 +57,7 @@ app.get(/\/list\/(.*$)/, function(req, res){
 });
 
 
-app.get(/\/read\/(.*$)/, function(req, res){
+app.get('/read/', function(req, res){
   res.render('read', {
     title: 'web cbr and cbz reader',
     locals:{ list: webcbr.read(req.params[0],app)}
