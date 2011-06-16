@@ -18,6 +18,8 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
+  //app.use(express.cookieParser());
+  //app.use(express.session({secret:'comicsrule', store: new mongo_store() }));
 });
 
 app.configure('development', function(){
@@ -64,7 +66,7 @@ app.get(/\/list\/(.*$)/, function(req, res){
 });
 
 app.get('/read/:comicBookName', function(req, res){
-  var ff = webcbr.readFirstFileName(req.params.comicBookName,app,config);
+  var ff = webcbr.readFirstFileName(req.params.comicBookName,app,config,req.session);
   res.render('read', {
     title: 'Reading: ' + req.params.comicBookName,
     locals:{ firstFile:ff,currentBook: req.params.comicBookName}

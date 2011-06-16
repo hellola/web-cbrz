@@ -1,8 +1,14 @@
 var config =  {};
 
 init = function(app) {
-    app.set('tempdir','/Users/jameelhaffejee/dev/web-cbrz/temp/');
-    app.set('comicdir','/Users/jameelhaffejee/dev/web-cbrz/tempother/');
+    if (app != null)
+    {
+        app.set('tempdir','/home/ewoudt/Documents/Development/web-cbrz/temp/');
+        app.set('comicdir','/home/ewoudt/Documents/Development/web-cbrz/tempother/');
+    }
+    
 }
+config.mongoserver = 'mongodb://127.0.0.1/test';
+
 config.init = init;
 module.exports = config;
