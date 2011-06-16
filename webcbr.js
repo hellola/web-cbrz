@@ -1,9 +1,11 @@
 var fs = require('fs');
+var pathFixer = require('path');
 var util = require('util'),
     exec = require('child_process').exec,
     child;
 var webcbr = {};
 var filesLoaded = [];
+webcbr.currentSocket = {};
 
 var extractCbz = function(filepath, tempdirpath) {
     var cmd = '';
@@ -37,7 +39,9 @@ var performExtraction = function(cmd,folder){
             }
             if(stdout){
                fs.readdir(folder,function(err,files){
-                   filesLoaded.push({'filename':fileName,'files':files});
+                   console.log('sending data over socket');
+                   webcbr.socket.broadcast({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(folder).replace('/','')});
+                   filesLoaded.push({'filename':pathFixer.basename(folder).replace('/',''),'files':files});
                });
             };
         });
@@ -69,31 +73,26 @@ var openfile = function(path,res,app) {
 }
 
 
-var read = function(comicBookName, app) {
-    //get a list of files in the current dir
-    //var html = '<a class="prev" href="" imageIndex="000">PrevImage</a>',
-        //'<a class="next" href="" imageIndex="000">Next Image</a>';
+var readFirstFileName = function(comicBookName, app) {
+    if(filesLoaded.length == 0){
+        reloadCache(comicBookName,app);
+    };
     for(var i=0;i<filesLoaded.length;i++){
         if(filesLoaded[i].filename == comicBookName){
-            if (filesLoaded[i].fileName == undefined) { continue; }
-             return  filesLoaded[i].fileName;
+             console.log(filesLoaded);
+             return  filesLoaded[i].files[0];
         } 
     }
 
-    //standardising settings to end with a /
     var files = {};
-    //strip the path and get only the cbr filename
-   var path = comicBookName.split('_');
-   var comicNameOnly = path[path.length-1];
+    var comicNameOnly = comicBookName;
     try {
         files = fs.readdirSync(app.settings.tempdir + comicNameOnly +'/'); 
-        console.log('reading files array ');
     } catch (e) {
-        //not extracted 
-        var nComicBookName = comicBookName.replace(/_/g,'/');
-        console.log('directory: ' + app.settings.tempdir + comicBookName +' not found extracting: ' +nComicBookName);
-        extractCbz(nComicBookName,app.settings.tempdir);
-        return 'Exctracted comic book: ' + comicBookName + ' to ' + app.settings.tempdir;
+        var nComicBookName = comicBookName;
+        extractCbz(pathFixer.join(app.settings.comicdir,comicBookName),app.settings.tempdir);
+        return '';
+        //return 'Exctracted comic book: ' + comicBookName + ' to ' + app.settings.tempdir;
     }
     filesLoaded.push({'filename':comicBookName,'files':files});
     console.log('pushed to filesLoaded: ' + filesLoaded.length);
@@ -101,8 +100,12 @@ var read = function(comicBookName, app) {
 }
 
 var reloadCache = function(comicBookName,app){
-    files = fs.readdirSync(app.settings.tempdir+'/'+comicBookName+'/'); 
-    filesLoaded.push({'filename':comicBookName,'files':files});
+    try{
+        files = fs.readdirSync(pathFixer.join(app.settings.tempdir,comicBookName+'/')); 
+        filesLoaded.push({'filename':comicBookName,'files':files});
+    }catch(e){
+    
+    }
 };
 
 var getNextFile = function(comicBookName,currentFileName, app) {
@@ -145,7 +148,7 @@ var list = function(path,app) {
             var l = "";
             if (stat.isDirectory()) { l = "/list/" } 
             if (stat.isFile()) { l = "/read/" } 
-            var nfile = '<li class="file"><a href="'+l+encodeURIComponent((path+'/'+ fils[file]).replace(/\//g,'_')) + '">'+fils[file]+'</a></li>';
+            var nfile = '<li class="file"><a href="/read/'+fils[file]+'">'+fils[file]+'</a></li>';
             //var nfile = '<li class="file"><a href="'+l+encodeURIComponent((fils[file]).replace(/\//g,'_')) + '">'+fils[file]+'</a></li>';
            newfiles.push(nfile);
         }
@@ -155,7 +158,7 @@ var list = function(path,app) {
 webcbr.list = list;
 webcbr.openfile = openfile;
 webcbr.extractCbz = extractCbz;
-webcbr.read = read;
+webcbr.readFirstFileName = readFirstFileName;
 webcbr.filesLoaded = filesLoaded;
 webcbr.getNextFile  = getNextFile;
 webcbr.getPrevFile = getPrevFile;

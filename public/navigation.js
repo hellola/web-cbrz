@@ -1,13 +1,10 @@
 function pad(number, length) {
-       
-        var str = '' + number;
-            while (str.length < length) {
-                        str = '0' + str;
-                            }
-               
-                return str;
-
-}
+    var str = '' + number;
+        while (str.length < length) {
+                    str = '0' + str;
+        }
+    return str;
+};
 $(document).ready(function(){
     var nextImage = function(){
         var bookName = $('a.next').attr('bookName');

@@ -6,6 +6,7 @@ var express = require('express');
 var webcbr = require('./webcbr');
 var config = require('./config');
 var path = require('path');
+var io = require('socket.io'); 
 
 var app = module.exports = express.createServer();
 // Configuration
@@ -48,10 +49,9 @@ app.get('/openfile/:path', function(req, res){
 
 app.get('/viewImage/:comicBookName/:image', function(req, res){
     //get comic name without path
-    var p = req.params.comicBookName.replace(/_/g,'/').split('/');
-    var cname = p[p.length-1];
-    var file =  app.settings.tempdir + cname +'/'+req.params.image.replace('\n','');
-    console.log('viewing image: ' + file);
+    //var p = req.params.comicBookName.replace(/_/g,'/').split('/');
+    //var cname = p[p.length-1];
+    var file =  app.settings.tempdir + req.params.comicBookName+'/'+req.params.image.replace('\n','');
     res.sendfile(file);
 });
 
@@ -63,11 +63,10 @@ app.get(/\/list\/(.*$)/, function(req, res){
   });
 });
 
-
 app.get('/read/:comicBookName', function(req, res){
-  var ff = webcbr.read(req.params.comicBookName,app)
+  var ff = webcbr.readFirstFileName(req.params.comicBookName,app,config);
   res.render('read', {
-    title: 'Reading: ' + path.basename(req.params.comicBookName.replace(/_/g,'/'),'.cbr') + ' - ' + ff,
+    title: 'Reading: ' + req.params.comicBookName,
     locals:{ firstFile:ff,currentBook: req.params.comicBookName}
   });
 });
@@ -89,3 +88,10 @@ app.get('/getPrevFile/:comicBookName/:currentFile', function(req, res){
 
 app.listen(3000,'0.0.0.0');
 console.log("Express server listening on port %d",app.address().port);
+
+var socket = io.listen(app); 
+webcbr.socket = socket;
+//socket.broadcast({'foo': json.doc.foo});
+//socket.on('connection', function(){ 
+
+//});
