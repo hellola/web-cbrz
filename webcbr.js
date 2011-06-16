@@ -31,7 +31,6 @@ var extractCbz = function(filepath, tempdirpath) {
 };
 
 var performExtraction = function(cmd,folder){
-    console.log(cmd);
     child = exec(cmd,
         function(error,stdout,stderr) {
             if (error !== null){
@@ -39,7 +38,6 @@ var performExtraction = function(cmd,folder){
             }
             if(stdout){
                fs.readdir(folder,function(err,files){
-                   console.log('sending data over socket');
                    webcbr.socket.broadcast({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(folder).replace('/','')});
                    filesLoaded.push({'filename':pathFixer.basename(folder).replace('/',''),'files':files});
                });
@@ -79,7 +77,6 @@ var readFirstFileName = function(comicBookName, app) {
     };
     for(var i=0;i<filesLoaded.length;i++){
         if(filesLoaded[i].filename == comicBookName){
-             console.log(filesLoaded);
              return  filesLoaded[i].files[0];
         } 
     }
@@ -95,7 +92,6 @@ var readFirstFileName = function(comicBookName, app) {
         //return 'Exctracted comic book: ' + comicBookName + ' to ' + app.settings.tempdir;
     }
     filesLoaded.push({'filename':comicBookName,'files':files});
-    console.log('pushed to filesLoaded: ' + filesLoaded.length);
     return files[0]; 
 }
 
