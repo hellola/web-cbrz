@@ -1,8 +1,8 @@
 h1= title
-p Welcome to #{title}
+p #{title}
 br/
 div(class='placeholder')
    img(src='/viewImage/'+currentBook+'/'+firstFile) 
-a(class='prev') Previous Page
+a(class='prev',fileName=firstFile,bookName=currentBook) Previous Page
 |
 a(class='next',fileName=firstFile,bookName=currentBook) Next Page 
