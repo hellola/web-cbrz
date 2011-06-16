@@ -5,6 +5,7 @@
 var express = require('express');
 var webcbr = require('./webcbr');
 var config = require('./config');
+var path = require('path');
 
 var app = module.exports = express.createServer();
 // Configuration
@@ -46,7 +47,12 @@ app.get('/openfile/:path', function(req, res){
 });
 
 app.get('/viewImage/:comicBookName/:image', function(req, res){
-    res.sendfile(app.settings.tempdir+'/'+req.params.comicBookName+'/'+req.params.image.replace('\n',''));
+    //get comic name without path
+    var p = req.params.comicBookName.replace(/_/g,'/').split('/');
+    var cname = p[p.length-1];
+    var file =  app.settings.tempdir + cname +'/'+req.params.image.replace('\n','');
+    console.log('viewing image: ' + file);
+    res.sendfile(file);
 });
 
 
@@ -61,13 +67,21 @@ app.get(/\/list\/(.*$)/, function(req, res){
 app.get('/read/:comicBookName', function(req, res){
   var ff = webcbr.read(req.params.comicBookName,app)
   res.render('read', {
-    title: 'web cbr and cbz reader',
+    title: 'Reading: ' + path.basename(req.params.comicBookName.replace(/_/g,'/'),'.cbr') + ' - ' + ff,
     locals:{ firstFile:ff,currentBook: req.params.comicBookName}
   });
 });
 
 app.get('/getNextFile/:comicBookName/:currentFile', function(req, res){
   var ff = webcbr.getNextFile(req.params.comicBookName,req.params.currentFile.replace('\n',''),app);
+  res.partial('ajaxResponse', {
+    locals:{ fileName:ff }
+  });
+});
+
+
+app.get('/getPrevFile/:comicBookName/:currentFile', function(req, res){
+  var ff = webcbr.getPrevFile(req.params.comicBookName,req.params.currentFile.replace('\n',''),app);
   res.partial('ajaxResponse', {
     locals:{ fileName:ff }
   });
