@@ -8,7 +8,7 @@ init = function(app) {
     }
     
 }
-config.mongoserver = 'mongodb://127.0.0.1/test';
+config.mongoserver = 'mongodb://127.0.0.1/db';
 
 config.init = init;
 module.exports = config;
