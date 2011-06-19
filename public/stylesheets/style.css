@@ -1,9 +1,85 @@
 body {
-  padding: 50px;
+  padding:0px;
+  margin:0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-
+div.holder
+{
+    padding-left:40px;
+}
 a {
   color: #00B7FF;
   cursor:pointer;
+}
+a.next,a.prev
+{
+    color:#ccc;
+    margin:auto auto;
+    padding-left:1em;
+    padding-top:1em;
+    width:8em;
+    height:2em;
+    display:block;
+    font-size:16px;
+    border:1px solid #ccc;
+    margin-right:1px;
+    float:left;
+}
+a.next:hover,a.prev:hover
+{
+   color:#00B7FF; 
+   border:1px solid #00B7FF;
+}
+a.comicnav
+{
+    color:#ccc;
+    margin:auto auto;
+    padding-left:1em;
+    padding-top:1em;
+    width:2em;
+    height:2em;
+    display:block;
+    font-size:16px;
+    border:1px solid #ccc;
+    margin-right:1px;
+}
+a.comicnav.read
+{
+   color:!important #B7FF00;
+   border:!important 1px solid #B7FF00;
+}
+a.comicnav:hover
+{
+   color:#00B7FF; 
+   border:1px solid #00B7FF;
+}
+div.placeholder img 
+{
+    margin:0 auto;
+    display:block;
+}
+div.fullnav
+{
+    height:50px;
+    width:80%;
+    overflow:auto;
+    float:left;
+    margin-bottom:20px;
+}
+a.next,a.prev,div.fullnav
+{
+    margin-top:10px;
+}
+ul#nav
+{
+    list-style-type: none;
+    height:50px;
+    color:#ccc;
+    padding:0px;
+    margin:0px;
+}
+ul#nav li 
+{ 
+    display:block;
+    float:left;
 }

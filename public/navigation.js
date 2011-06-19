@@ -65,6 +65,7 @@ $(document).ready(function(){
         var bookName = $(this).attr('bookName');
         var fileName = $(this).attr('filename');
         var url = '/getNextFile/'+encodeURI(bookName)+'/'+encodeURI(fileName);
+        console.log('posting to url: ' + url);
         $.ajax({
             url: url,
             success: function(data){
@@ -76,7 +77,8 @@ $(document).ready(function(){
                }
                var temp = '/viewImage/'+encodeURI(bookName)+'/'+encodeURI(data);
                temp = temp.substring(0,temp.length-3);
-               $(".placeholder").html('<img src=' + temp  +'>'); 
+               $(".placeholder").html('<img src=' + temp  +' onclick="$(\'a.next\').click()">'); 
+               afterNavigate();
             }
         });
     });        
@@ -102,9 +104,17 @@ $(document).ready(function(){
                temp = temp.substring(0,temp.length-3);
                console.log('newImage: ' + temp);
                $(".placeholder").html('<img src=' + temp  +'>'); 
+               afterNavigate();
             }
         });
     });        
+
+
+
+    function afterNavigate() {
+        console.log('after navigate');
+        webcbr.updateSelected();
+    }
     $(document).keydown(function(e){
         if (e.keyCode == 37) { 
             prevImage();
