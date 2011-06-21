@@ -201,22 +201,22 @@ var list = function(path,app) {
     console.log(relpath);
     path = path.replace(/_/g,'/');
     fils = fs.readdirSync(path); 
-        var files = fils.filter(function(v) { return /(\.(cbr|cbz)$)|(^[^\.]*$)/.test(v);});
-        var newfiles = new Array();
-        for (file in fils) {
-            var stat = fs.lstatSync(pathFixer.join(path +'/'+ fils[file]));
-            console.log('listing: ' + pathFixer.join(path + '/' + fils[file]));
-            var l = "";
-            if (stat.isFile()) { l = "/read/" } 
-            if (stat.isDirectory()) { l = "/list/" } 
-            console.log('d: ' + stat.isDirectory());
-            var nfile = '<li class="file"><a href="' + l + relpath + encodeURIComponent(fils[file])+'">'+fils[file]+'</a></li>';
-            //var nfile = '<li class="file"><a href="'+l+encodeURIComponent((fils[file]).replace(/\//g,'_')) + '">'+fils[file]+'</a></li>';
-           newfiles.push(nfile);
-        }
-        files = newfiles;
-	    return '<ul>'+files+'</ul>';
+    var files = fils.filter(function(v) { return /(\.(cbr|cbz)$)|(^[^\.]*$)/.test(v);});
+    var newfiles = new Array();
+    for (file in fils) {
+        var stat = fs.lstatSync(pathFixer.join(path +'/'+ fils[file]));
+        console.log('listing: ' + pathFixer.join(path + '/' + fils[file]));
+        var l = "";
+        if (stat.isFile()) { l = "/read/" } 
+        if (stat.isDirectory()) { l = "/list/" } 
+        console.log('d: ' + stat.isDirectory());
+        var nfile = '<li class="file"><a href="' + l + relpath + encodeURIComponent(fils[file])+'">'+fils[file]+'</a></li>';
+        //var nfile = '<li class="file"><a href="'+l+encodeURIComponent((fils[file]).replace(/\//g,'_')) + '">'+fils[file]+'</a></li>';
+       newfiles.push(nfile);
+    }
+    return '<ul>'+newfiles.join('')+'</ul>';
 };
+
 webcbr.list = list;
 webcbr.extractCbz = extractCbz;
 webcbr.readFirstFileName = readFirstFileName;
