@@ -51,8 +51,9 @@ app.get('/openfile/:path', function(req, res){
 
 
 app.get('/getFiles/:comicBookName', function(req, res){
+    console.log('getcomicbookfiles: ' + req.params.comicBookName);
     webcbr.getComicBookFiles(req.params.comicBookName,app,function(files) {
-    console.log('reading files list' + files.length + ' files: ' + files);
+    console.log('reading files list: ' + files.length + ' files: ' + files);
     res.contentType('application/json'); 
     res.send(JSON.stringify(files))
   });
@@ -63,7 +64,7 @@ app.get('/viewImage/:comicBookName/:image', function(req, res){
     //get comic name without path
     //var p = req.params.comicBookName.replace(/_/g,'/').split('/');
     //var cname = p[p.length-1];
-    var file =  app.settings.tempdir + req.params.comicBookName+'/'+req.params.image.replace('\n','');
+    var file =  app.settings.tempdir + decodeURIComponent(req.params.comicBookName)+'/'+decodeURIComponent(req.params.image.replace('\n',''));
     res.sendfile(file);
 });
 
@@ -75,18 +76,18 @@ app.get(/\/list\/(.*$)/, function(req, res){
   });
 });
 
-app.get('/read/:comicBookName', function(req, res){
-  webcbr.readFirstFileName(req.params.comicBookName,app,function(ff) {
+app.get(/\/read\/(.*$)/, function(req, res){
+  webcbr.readFirstFileName(req.params[0],app,function(ff,comicBook) {
       console.log('reading first returned filename: ' + ff);
       res.render('read', {
-        title: 'Reading: ' + req.params.comicBookName,
-        locals:{ firstFile:ff,currentBook: req.params.comicBookName}
+        title: 'Reading: ' + comicBook,
+        locals:{ firstFile:encodeURIComponent(ff),currentBook: encodeURIComponent(comicBook)}
       });
   });
 });
 
-app.get('/getNextFile/:comicBookName/:currentFile', function(req, res){
-  webcbr.navigateTo(req.params.comicBookName,req.params.currentFile.replace('\n',''),1,app,function(ff) {
+app.get(/\/getNextFile\/([^\/]*)\/([^\/]*$)/, function(req, res){
+  webcbr.navigateTo(req.params[0],req.params[1].replace('\n',''),1,app,function(ff) {
   res.partial('ajaxResponse', {
     locals:{ fileName:ff }
   });
@@ -94,8 +95,8 @@ app.get('/getNextFile/:comicBookName/:currentFile', function(req, res){
 });
 
 
-app.get('/getPrevFile/:comicBookName/:currentFile', function(req, res){
-  webcbr.navigateTo(req.params.comicBookName,req.params.currentFile.replace('\n',''),-1,app,function(ff) {
+app.get(/\/getPrevFile\/([^\/]*)\/([^\/]*)/, function(req, res){
+  webcbr.navigateTo(req.params[0],req.params[1].replace('\n',''),-1,app,function(ff) {
   res.partial('ajaxResponse', {
     locals:{ fileName:ff }
   });
