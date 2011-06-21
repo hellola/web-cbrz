@@ -203,18 +203,25 @@ var list = function(path,app) {
     fils = fs.readdirSync(path); 
     var files = fils.filter(function(v) { return /(\.(cbr|cbz)$)|(^[^\.]*$)/.test(v);});
     var newfiles = new Array();
+    newfiles.push('<li class="up" onclick="webcbr.moveUp()"><img src="/images/up.gif" alt=".." widt="32" height="32"/></li>');
     for (file in fils) {
         var stat = fs.lstatSync(pathFixer.join(path +'/'+ fils[file]));
         console.log('listing: ' + pathFixer.join(path + '/' + fils[file]));
-        var l = "";
-        if (stat.isFile()) { l = "/read/" } 
-        if (stat.isDirectory()) { l = "/list/" } 
+        var l = "", imgsrc="";
+        if (stat.isFile()) {
+             l = "/read/" 
+             imgsrc="/images/comic.png";
+             } 
+        if (stat.isDirectory()) {
+             l = "/list/" 
+             imgsrc="/images/folder.png";
+             } 
         console.log('d: ' + stat.isDirectory());
-        var nfile = '<li class="file"><a href="' + l + relpath + encodeURIComponent(fils[file])+'">'+fils[file]+'</a></li>';
+        var nfile = '<li class="file"><a href="' + l + relpath + encodeURIComponent(fils[file])+'"><img src="'+imgsrc+'" width="32" height="32" alt=""/><span>'+fils[file]+'</span></a></li>';
         //var nfile = '<li class="file"><a href="'+l+encodeURIComponent((fils[file]).replace(/\//g,'_')) + '">'+fils[file]+'</a></li>';
        newfiles.push(nfile);
     }
-    return '<ul>'+newfiles.join('')+'</ul>';
+    return '<ul class="files">'+newfiles.join('')+'</ul>';
 };
 
 webcbr.list = list;

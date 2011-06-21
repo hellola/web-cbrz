@@ -25,6 +25,26 @@ a.next,a.prev
     margin-right:1px;
     float:left;
 }
+ul.files 
+{
+    list-style-type:none;
+}
+ul.files li 
+{
+    clear:both;
+    margin-bottom:9px;
+    height:32px;
+}
+ul.files li img 
+{
+    padding-right:20px;
+}
+ul.files li.up { padding-bottom:20px; cursor:pointer;}
+ul.files li span, ul.files li img { display:block; float:left; } 
+ul.files li span
+{
+    margin-top:9px;
+}
 a.next:hover,a.prev:hover
 {
    color:#00B7FF; 
