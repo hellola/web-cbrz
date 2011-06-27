@@ -12,15 +12,15 @@ var extractCbz = function(filepath, tempdirpath,comicbook) {
     var fileParts = filepath.split('/');
     console.log('extracting: ' + filepath + ', tempdir:'+tempdirpath + ', ' + comicbook);
     if (/\.cbr$/.test(filepath)){
-        var extractionFolder = tempdirpath+'/'+fileParts[fileParts.length -1]+'/'; 
+        var extractionFolder = pathFixer.join(tempdirpath,fileParts[fileParts.length -1])+'/'; 
         fs.lstat(extractionFolder,function(error,stat){
                if(error){
                    fs.mkdir(extractionFolder,0777,function(){
-                            cmd = 'unrar x "'+filepath + '" -d "'+ extractionFolder + '"';
+                            cmd = 'unrar e "'+filepath + '" -d "'+ extractionFolder + '"';
                             performExtraction(cmd,extractionFolder,comicbook);
                        });       
                }else{
-                    cmd = 'unrar x "'+filepath + '" -d "'+ extractionFolder + '"';
+                    cmd = 'unrar e "'+filepath + '" -d "'+ extractionFolder + '"';
                     performExtraction(cmd,extractionFolder,comicbook);
                } 
         });
@@ -32,7 +32,7 @@ var extractCbz = function(filepath, tempdirpath,comicbook) {
 };
 
 var performExtraction = function(cmd,folder,comicbook){
-    console.log('perform extraction: folder: ' + folder);
+    console.log('perform extraction: folder: ' + folder + ', command: ' + cmd);
     if (comicbook) {
     child = exec(cmd,
         function(error,stdout,stderr) {
@@ -40,6 +40,7 @@ var performExtraction = function(cmd,folder,comicbook){
                 console.log('exec error: ' + error);
             }
             if(stdout){
+                console.log(stdout);
                 console.log('exec finished');
                fs.readdir(folder,function(err,files){
                    console.log('length: ' + files.length);
@@ -65,6 +66,7 @@ var performExtraction = function(cmd,folder,comicbook){
 
 var getComicBookFiles = function(comicBookName, app, callback) {
     comicBookName = decodeURIComponent(comicBookName);
+    console.log('getting comicbook: ' + comicBookName);
     model.comicbook_model.findOne({'name': comicBookName}, function(err,comicbook) {
         if (comicbook) {
             var files = comicbook.files;
