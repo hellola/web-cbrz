@@ -60,12 +60,13 @@ app.get('/getFiles/:comicBookName', function(req, res){
 });
 
 
-app.get('/viewImage/:comicBookName/:image', function(req, res){
+app.get('/viewImage/:comicBookHash/:index', function(req, res){
     //get comic name without path
     //var p = req.params.comicBookName.replace(/_/g,'/').split('/');
     //var cname = p[p.length-1];
-    var file =  app.settings.tempdir + decodeURIComponent(req.params.comicBookName)+'/'+decodeURIComponent(req.params.image.replace('\n',''));
-    res.sendfile(file);
+    webcbr.getComicBookFilePath(app, req.params.comicBookHash, req.params.index, function (filePath) {
+    res.sendfile(filePath);
+    });
 });
 
 
@@ -77,11 +78,11 @@ app.get(/\/list\/(.*$)/, function(req, res){
 });
 
 app.get(/\/read\/(.*$)/, function(req, res){
-  webcbr.readFirstFileName(req.params[0],app,function(ff,comicBook) {
-      console.log('reading first returned filename: ' + ff);
+  webcbr.readFirstFileName(req.params[0],app,function(ff,comicName,comicHash) {
+      console.log('reading first returned filename: ' + ff + ' hash: ' + comicHash + ', Name:' + comicName);
       res.render('read', {
-        title: 'Reading: ' + comicBook,
-        locals:{ firstFile:encodeURIComponent(ff),currentBook: encodeURIComponent(comicBook)}
+        title: 'Reading: ' +  comicName,
+        locals:{ firstFile:ff,currentBook: encodeURIComponent(comicHash)}
       });
   });
 });

@@ -21,6 +21,7 @@ var Files = new Schema({
 });
 var comicbook = new Schema({
     name : String,
+    hash : String,
     files : [Files]
 });
 
