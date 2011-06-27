@@ -153,8 +153,8 @@ var reloadCache = function(comicBookPath,app,comicbook){
 };
 
 var navigateTo = function(comicBookName,currentFileName,direction,app,callback) {
-    comicBookName = decodeURI(comicBookName);
-    currentFileName = decodeURI(currentFileName);
+    comicBookName = decodeURI(decodeURIComponent(comicBookName));
+    currentFileName = decodeURI(decodeURIComponent(currentFileName));
     console.log('navigateTo: ' + comicBookName + ', current: ' + currentFileName);
     var fle ='';
     direction = Number(direction);
