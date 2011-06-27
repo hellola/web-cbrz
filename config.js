@@ -5,7 +5,7 @@ init = function(app) {
     {
         app.set('tempdir','/Users/jameelhaffejee/dev/web-cbrz/temp/');
         app.set('comicdir','/Users/jameelhaffejee/dev/web-cbrz/tempother/');
-        app.set('webserverURL','http://localhost');
+        app.set('webserverURL','http://localhost:3000');
     }
     
 }

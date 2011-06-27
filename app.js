@@ -128,4 +128,4 @@ app.listen(3000,'0.0.0.0');
 console.log("Express server listening on port %d",app.address().port);
 
 var socketServer = io.listen(app); 
-webcbr.sockerServer= socketServer;
+webcbr.socketServer = socketServer;

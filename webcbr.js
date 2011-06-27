@@ -6,7 +6,7 @@ var util = require('util'),
 var model = require('./webcbr_models');
 var webcbr = {};
 var hashlib = require('hashlib');
-webcbr.currentSocket = {};
+webcbr.socketServer = {};
 
 var extractCbz = function(filepath, tempdirpath,comicbook) {
     var cmd = '';
@@ -45,12 +45,16 @@ var performExtraction = function(cmd,folder,comicbook){
             if(stdout){
                 console.log(stdout);
                 console.log('exec finished');
+                var folderToLoad = folder;
                 var creatingPattern = /creating:.*/;
-                var newFolder = creatingPattern.exec(stdout)[0].toString().substring(10);
-                fs.readdir(newFolder,function(err,files){
+                var creationCheck = creatingPattern.exec(stdout)
+                if(creationCheck){
+                    folderToLoad = creationCheck[0].toString().substring(10);
+                }
+                fs.readdir(folderToLoad,function(err,files){
                    console.log('length: ' + files.length);
                    webcbr.socketServer.sockets.on('connection', function (socket) {
-                         socket.broadcast.emit({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(newFolder).replace('/','')});
+                         socket.broadcast.emit({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(folderToLoad).replace('/','')});
                          });
                     for (var i=0;i++;i<files.length) {
                         console.log('adding file to db');
