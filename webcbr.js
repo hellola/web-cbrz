@@ -87,40 +87,40 @@ var readFirstFileName = function(comicBookPath, app,callback) {
     var comicBookHash= paths[paths.length-1];
     console.log('book hash: ' + comicBookHash + ', path:' + comicBookPath); //first check if it exists 
     model.comicbook_model.findOne({'hash': comicBookHash}, function(err,comicbook) { 
-        if (comicbook == null) { console.log('comic book is null/ not found'); //make  a new one
-            //it should never be null
-            console.log('invalid path');
-            return;
-        }
+            if (comicbook == null) { console.log('comic book is null/ not found'); //make  a new one
+               //it should never be null
+               console.log('invalid path');
+               return;
+            }
 
-    //if there are no files in the db we haven't extracted them yet
-   if(comicbook.files == null || comicbook.files.length == 0){
-       //replace has in path to comicbookname for extraction
-       var realComicBookPath = comicBookPath.replace(comicbook.hash,comicbook.name);
-        extractCbz(pathFixer.join(app.settings.comicdir,realComicBookPath),app.settings.tempdir,comicbook);
-       comicbook = reloadCache(app,comicbook);
-   };
-   if (comicbook.files != null && comicbook.files.length != 0) { 
-       //console.log(comicbook.name + ' - ' +comicbook.files[0] + ' - ' + comicbook.files[0].filename);
-             if (callback) { callback(0,comicbook.name,comicBookHash);
-                 return;
-                 console.log("return not breaking execution");
-             }
-    }
-    else {
-        console.log('somehow files have not been reloaded');
-    }
-    var files = {};
-    comicbook.save(function (err) {});
-    if (callback) {
-        callback(0,comicbook.name, comicBookHash);
-        //not sure why there is another extract here
-        //extractCbz(pathFixer.join(app.settings.comicdir,comicBookPath),app.settings.tempdir,comicbook);
-    }
-    else
-    {
-        console.log('no callback function');
-    }
+            //if there are no files in the db we haven't extracted them yet
+            if(comicbook.files == null || comicbook.files.length == 0){
+               //replace has in path to comicbookname for extraction
+               console.log('building new db for comic');
+               var realComicBookPath = comicBookPath.replace(comicbook.hash,comicbook.name);
+               extractCbz(pathFixer.join(app.settings.comicdir,realComicBookPath),app.settings.tempdir,comicbook);
+               comicbook = reloadCache(app,comicbook);
+            };
+            if (comicbook.files != null && comicbook.files.length != 0) { 
+               //console.log(comicbook.name + ' - ' +comicbook.files[0] + ' - ' + comicbook.files[0].filename);
+                     if (callback) { callback(0,comicbook.name,comicBookHash);
+                         return;
+                         console.log("return not breaking execution");
+                     }
+            }
+            else{
+                console.log('somehow files have not been reloaded');
+            }
+            var files = {};
+            comicbook.save(function (err) {});
+            if (callback) {
+                callback(0,comicbook.name, comicBookHash);
+                //not sure why there is another extract here
+                //extractCbz(pathFixer.join(app.settings.comicdir,comicBookPath),app.settings.tempdir,comicbook);
+            }
+            else{
+                console.log('no callback function');
+            }
     });
 }
 
