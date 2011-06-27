@@ -68,7 +68,7 @@ webcbr = {
            $('a.next,a.prev').attr('filename',fileName);
            var temp = '/viewImage/'+encodeURI(bookName)+'/'+encodeURI(fileName);
            console.log('newImage: ' + temp);
-           $(".placeholder").html('<img src=' + temp  +'>'); 
+           $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
            webcbr.updateSelected();
         });
     },
@@ -102,7 +102,7 @@ next : function() {
             $('a.prev,a.next').attr('filename',index);
                var temp = '/viewImage/'+bookName+'/'+index;
                console.log('newImage: ' + temp);
-               $(".placeholder").html('<img src=' + temp  +'>'); 
+               $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
                webcbr.updateSelected();
             },
 prev : function() {
@@ -112,7 +112,7 @@ prev : function() {
             $('a.prev,a.next').attr('filename',index);
                var temp = '/viewImage/'+bookName+'/'+index;
                console.log('newImage: ' + temp);
-               $(".placeholder").html('<img src=' + temp  +'>'); 
+               $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
                webcbr.updateSelected();
             }
     },
@@ -133,7 +133,7 @@ prev : function() {
                 console.log('extraction complete, showing images');
                 var temp = 'http://'+document.location.host+'/viewImage/'+encodeURI(json.comicName)+'/'+encodeURI(json.firstFile);
                 console.log(temp);
-                $(".placeholder").html('<img src=' + temp  +'>'); 
+                $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
             };
         });
 
