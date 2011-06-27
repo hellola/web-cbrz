@@ -32,6 +32,8 @@ var extractCbz = function(filepath, tempdirpath,comicbook) {
     }
 };
 
+//The way we are passing the comic book and folder around in this method is wrong
+//and can lead to other weirdness we should technically not do that
 var performExtraction = function(cmd,folder,comicbook){
     console.log('perform extraction: folder: ' + folder + ', command: ' + cmd);
     if (comicbook) {
@@ -43,10 +45,13 @@ var performExtraction = function(cmd,folder,comicbook){
             if(stdout){
                 console.log(stdout);
                 console.log('exec finished');
-               fs.readdir(folder,function(err,files){
+                var creatingPattern = /creating:.*/;
+                var newFolder = creatingPattern.exec(stdout)[0].toString().substring(10);
+                fs.readdir(newFolder,function(err,files){
                    console.log('length: ' + files.length);
-                   webcbr.socket.broadcast({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(folder).replace('/','')});
-
+                   webcbr.socketServer.sockets.on('connection', function (socket) {
+                         socket.broadcast.emit({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(newFolder).replace('/','')});
+                         });
                     for (var i=0;i++;i<files.length) {
                         console.log('adding file to db');
                         file =  new model.files_model();
@@ -55,7 +60,7 @@ var performExtraction = function(cmd,folder,comicbook){
                         comicbook.files.push(file);
                     }
                     comicbook.save();
-               });
+                });
             };
         });
     }
@@ -96,7 +101,6 @@ var readFirstFileName = function(comicBookPath, app,callback) {
             //if there are no files in the db we haven't extracted them yet
             if(comicbook.files == null || comicbook.files.length == 0){
                //replace has in path to comicbookname for extraction
-               console.log('building new db for comic');
                var realComicBookPath = comicBookPath.replace(comicbook.hash,comicbook.name);
                extractCbz(pathFixer.join(app.settings.comicdir,realComicBookPath),app.settings.tempdir,comicbook);
                comicbook = reloadCache(app,comicbook);
@@ -157,26 +161,26 @@ var getComicBookFilePath = function(app, comicBookHash, index, callback) {
 var reloadCache = function(app,comicbook){
     try{
         if (comicbook) {
-        var comicBookName = comicbook.name;
-        console.log('reloading cache: ' + pathFixer.join(app.settings.tempdir,comicBookName+'/'));
-        var files = fs.readdirSync(pathFixer.join(app.settings.tempdir,comicBookName+'/')); 
-        //clear files
-        console.log('removing files: ' + comicbook.files.length);
-        while (comicbook.files.length > 0) {
-            comicbook.files[0].remove();
-        }
-        console.log('finished removing');
+            var comicBookName = comicbook.name;
+            console.log('reloading cache: ' + pathFixer.join(app.settings.tempdir,comicBookName+'/'));
+            var files = fs.readdirSync(pathFixer.join(app.settings.tempdir,comicBookName+'/')); 
+            //clear files
+            console.log('removing files: ' + comicbook.files.length);
+            while (comicbook.files.length > 0) {
+                comicbook.files[0].remove();
+            }
+            console.log('finished removing');
 
-        
-        for (var k=0;k<files.length;k++) {
-            console.log('adding file: ' + files[k]);
-            file =  new model.files_model();
-            file.filename = files[k];
-            file.read =0;
-            comicbook.files.push(file);
-            comicbook.save(function(err) { if (err) console.log(err)});
-        }
-        comicbook.save();
+            
+            for (var k=0;k<files.length;k++) {
+                console.log('adding file: ' + files[k]);
+                file =  new model.files_model();
+                file.filename = files[k];
+                file.read =0;
+                comicbook.files.push(file);
+                comicbook.save(function(err) { if (err) console.log(err)});
+            }
+            comicbook.save();
         } else { console.log('reload cache wasnt\' sent a comicbook');}
     }catch(e){
         var nm = "";

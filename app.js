@@ -127,9 +127,5 @@ app.get('/navigateToFile/:comicBookName/:currentFile',function(req,res) {
 app.listen(3000,'0.0.0.0');
 console.log("Express server listening on port %d",app.address().port);
 
-var socket = io.listen(app); 
-webcbr.socket = socket;
-//socket.broadcast({'foo': json.doc.foo});
-//socket.on('connection', function(){ 
-
-//});
+var socketServer = io.listen(app); 
+webcbr.sockerServer= socketServer;
