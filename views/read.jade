@@ -1,8 +1,8 @@
 h1= title
-script(src='http://localhost:3000/socket.io/socket.io.js')
+script(src=/socket.io/socket.io.js')
 script 
     $(document).ready(function() {
-        webcbr.init();
+        webcbr.init(webserverURL);
     });
 p #{title}
 div.comicnav

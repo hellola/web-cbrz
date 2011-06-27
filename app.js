@@ -82,7 +82,7 @@ app.get(/\/read\/(.*$)/, function(req, res){
       console.log('reading first returned filename: ' + ff + ' hash: ' + comicHash + ', Name:' + comicName);
       res.render('read', {
         title: 'Reading: ' +  comicName,
-        locals:{ firstFile:ff,currentBook: encodeURIComponent(comicHash)}
+        locals:{ firstFile:ff,currentBook: encodeURIComponent(comicHash),webserverURL:app.settings.webserverURL}
       });
   });
 });

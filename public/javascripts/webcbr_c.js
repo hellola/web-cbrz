@@ -1,5 +1,5 @@
 webcbr = {
-    init : function() {
+    init : function(webserverURL) {
         webcbr.initSockets();
         webcbr.getComicFiles();
         $('a.prev').click(function(){
@@ -124,9 +124,8 @@ prev : function() {
         }
         return '';
     },
-    initSockets: function() {
-        var socket = new io.Socket(null,{port:3000,rememberTransport:false}); 
-        socket.connect();
+    initSockets: function(webserverURL) {
+        var socket = io.connect(webserverURL);
         socket.on('message', function(json){ 
             console.log(json);
             if(json.extraction == 'complete'){
