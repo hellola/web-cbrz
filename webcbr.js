@@ -95,7 +95,9 @@ var readFirstFileName = function(comicBookPath, app,callback) {
 
     //if there are no files in the db we haven't extracted them yet
    if(comicbook.files == null || comicbook.files.length == 0){
-        extractCbz(pathFixer.join(app.settings.comicdir,comicBookPath),app.settings.tempdir,comicbook);
+       //replace has in path to comicbookname for extraction
+       var realComicBookPath = comicBookPath.replace(comicbook.hash,comicbook.name);
+        extractCbz(pathFixer.join(app.settings.comicdir,realComicBookPath),app.settings.tempdir,comicbook);
        comicbook = reloadCache(app,comicbook);
    };
    if (comicbook.files != null && comicbook.files.length != 0) { 

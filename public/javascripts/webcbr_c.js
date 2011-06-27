@@ -59,7 +59,7 @@ webcbr = {
         $('div.fullnav').html(html + $('div.fullnav').html());
         webcbr.updateSelected();
         //set click for navigation
-        $('a.comicnav').click(function(){
+        $('a.comicnav').click(function(event){
            event.preventDefault(); 
            console.log('comicnav clicked');
            var bookName = $('a.next').attr('bookName');
