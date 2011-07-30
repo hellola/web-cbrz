@@ -8,7 +8,7 @@ var webcbr = {};
 var hashlib = require('hashlib');
 webcbr.socketServer = {};
 
-var extractCbz = function(filepath, tempdirpath,comicbook) {
+var extractCbz = function(filepath, tempdirpath,comicbook,callback) {
     var cmd = '';
     var fileParts = filepath.split('/');
     console.log('extracting: ' + filepath + ', tempdir:'+tempdirpath + ', ' + comicbook);
@@ -18,27 +18,25 @@ var extractCbz = function(filepath, tempdirpath,comicbook) {
                if(error){
                    fs.mkdir(extractionFolder,0777,function(){
                             cmd = 'unrar e "'+filepath + '" -d "'+ extractionFolder + '"';
-                            performExtraction(cmd,extractionFolder,comicbook);
+                            performExtraction(cmd,extractionFolder,comicbook,callback);
                        });       
                }else{
                     cmd = 'unrar e "'+filepath + '" -d "'+ extractionFolder + '"';
-                    performExtraction(cmd,extractionFolder,comicbook);
+                    performExtraction(cmd,extractionFolder,comicbook,callback);
                } 
         });
-    }
-    else {
+    }else {
         cmd = 'unzip'+' "'+filepath + '" -d "'+ tempdirpath + '"';
-        performExtraction(cmd,extractionFolder,comicbook);
+        performExtraction(cmd,extractionFolder,comicbook,callback);
     }
 };
 
 //The way we are passing the comic book and folder around in this method is wrong
 //and can lead to other weirdness we should technically not do that
-var performExtraction = function(cmd,folder,comicbook){
+var performExtraction = function(cmd,folder,comicbook,callback){
     console.log('perform extraction: folder: ' + folder + ', command: ' + cmd);
     if (comicbook) {
-    child = exec(cmd,
-        function(error,stdout,stderr) {
+    child = exec(cmd, function(error,stdout,stderr) {
             if (error !== null){
                 console.log('exec error: ' + error);
             }
@@ -64,12 +62,14 @@ var performExtraction = function(cmd,folder,comicbook){
                         comicbook.files.push(file);
                     }
                     comicbook.save();
+		    callback();
                 });
             };
         });
     }
     else {
         console.log('comicbook to extract not found ');
+	callback();
     }
 };
 
@@ -106,8 +106,9 @@ var readFirstFileName = function(comicBookPath, app,callback) {
             if(comicbook.files == null || comicbook.files.length == 0){
                //replace has in path to comicbookname for extraction
                var realComicBookPath = comicBookPath.replace(comicbook.hash,comicbook.name);
-               extractCbz(pathFixer.join(app.settings.comicdir,realComicBookPath),app.settings.tempdir,comicbook);
-               comicbook = reloadCache(app,comicbook);
+               extractCbz(pathFixer.join(app.settings.comicdir,realComicBookPath),app.settings.tempdir,comicbook,function(){
+		       comicbook = reloadCache(app,comicbook);
+	       });
             };
             if (comicbook.files != null && comicbook.files.length != 0) { 
                //console.log(comicbook.name + ' - ' +comicbook.files[0] + ' - ' + comicbook.files[0].filename);
