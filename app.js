@@ -73,7 +73,7 @@ app.get('/viewImage/:comicBookHash/:index', function(req, res){
 app.get(/\/list\/(.*$)/, function(req, res){
   res.render('list', {
     title: 'web cbr and cbz reader',
-    locals:{ list: webcbr.list(req.params[0],app)}
+    locals:{ list: webcbr.list(req.params[0],app),webserverURL:app.settings.webserverURL}
   });
 });
 
@@ -124,8 +124,11 @@ app.get('/navigateToFile/:comicBookName/:currentFile',function(req,res) {
 
 
 
+var nowjs = require("now");
+var everyone = nowjs.initialize(app);
 app.listen(3000,'0.0.0.0');
-console.log("Express server listening on port %d",app.address().port);
 
-var socketServer = io.listen(app); 
-webcbr.socketServer = socketServer;
+webcbr.everyone = everyone;
+webcbr.everyone.now.distribute = function(message){
+	everyone.now.receive('backend', message);
+};
