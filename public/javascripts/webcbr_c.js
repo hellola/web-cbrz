@@ -1,7 +1,7 @@
 webcbr = {
     init : function(webserverURL) {
         webcbr.initSockets(webserverURL);
-        webcbr.getComicFiles();
+        //webcbr.getComicFiles();
         $('a.prev').click(function(){
             webcbr.nav.prev();
         });
@@ -95,7 +95,7 @@ webcbr = {
         });
     },
     nav: {
-next : function() {
+    next : function() {
             var bookName = $('a.next').attr('bookName');
             var fileName = $('a.next').attr('filename');
             var index = Number(fileName) + 1;
@@ -105,7 +105,7 @@ next : function() {
                $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
                webcbr.updateSelected();
             },
-prev : function() {
+    prev : function() {
             var bookName = $('a.next').attr('bookName');
             var fileName = $('a.next').attr('filename');
             var index = Number(fileName) - 1;
@@ -127,9 +127,10 @@ prev : function() {
     initSockets: function(webserverURL) {
 	now.receive = function(name, message){
             if(message.extraction == 'complete'){
-                //console.log('extraction complete, showing images');
-                var temp = 'http://'+document.location.host+'/viewImage/'+encodeURI(message.comicName)+'/'+encodeURI(message.firstFile);
-                //console.log(temp);
+                console.log('extraction complete, showing images');
+                webcbr.getComicFiles();
+                var temp = 'http://'+document.location.host+'/viewImage/'+encodeURI(message.hash)+'/0';
+                console.log(temp);
                 $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
             };
 	}

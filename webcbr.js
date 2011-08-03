@@ -43,28 +43,8 @@ var performExtraction = function(cmd,folder,comicbook,callback){
             if(stdout){
                 console.log(stdout);
                 console.log('exec finished');
-                var folderToLoad = folder;
-                var creatingPattern = /creating:.*/;
-                var creationCheck = creatingPattern.exec(stdout)
-                if(creationCheck){
-                    folderToLoad = creationCheck[0].toString().substring(10);
-                }
-                fs.readdir(folderToLoad,function(err,files){
-                    console.log('length: ' + files.length);
-
-                    for (var i=0;i++;i<files.length) {
-                        console.log('adding file to db');
-                        file =  new model.files_model();
-                        file.filename = files[i];
-                        file.read =0;
-                        comicbook.files.push(file);
-                    }
-                    comicbook.save(function(err){
-				//console.log('sending browser notification');
-			    //webcbr.everyone.now.distribute({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(folderToLoad).replace('/','')});
-			    callback();
-		    });
-                });
+                //Removed the file loader from here as the cache loader does a better job at it
+                callback();
             };
         });
     }
@@ -109,14 +89,15 @@ var readFirstFileName = function(comicBookPath, app,callback) {
                var realComicBookPath = comicBookPath.replace(comicbook.hash,comicbook.name);
                extractCbz(pathFixer.join(app.settings.comicdir,realComicBookPath),app.settings.tempdir,comicbook,function(){
 		       comicbook = reloadCache(app,comicbook);
+                       console.log('sending browser notification');
+                       webcbr.everyone.now.distribute({'extraction': 'complete','hash':comicbook.hash});//The extraction and cache load is complete we can now load the front end
 	       });
             };
             if (comicbook.files != null && comicbook.files.length != 0) { 
-               //console.log(comicbook.name + ' - ' +comicbook.files[0] + ' - ' + comicbook.files[0].filename);
-                     if (callback) { callback(0,comicbook.name,comicBookHash);
-                         return;
-                         console.log("return not breaking execution");
-                     }
+                 if (callback) { callback(0,comicbook.name,comicBookHash);
+                     return;
+                     console.log("return not breaking execution");
+                 }
             }
             else{
                 console.log('somehow files have not been reloaded');
@@ -125,8 +106,6 @@ var readFirstFileName = function(comicBookPath, app,callback) {
             comicbook.save(function (err) {});
             if (callback) {
                 callback(0,comicbook.name, comicBookHash);
-                //not sure why there is another extract here
-                //extractCbz(pathFixer.join(app.settings.comicdir,comicBookPath),app.settings.tempdir,comicbook);
             }
             else{
                 console.log('no callback function');
@@ -176,17 +155,16 @@ var reloadCache = function(app,comicbook){
                 comicbook.files[0].remove();
             }
             console.log('finished removing');
-
             
             for (var k=0;k<files.length;k++) {
                 console.log('adding file: ' + files[k]);
                 file =  new model.files_model();
                 file.filename = files[k];
-                file.read =0;
+                file.read = 0;
                 comicbook.files.push(file);
                 comicbook.save(function(err) { if (err) console.log(err)});
             }
-            comicbook.save();
+            //comicbook.save();
         } else { console.log('reload cache wasnt\' sent a comicbook');}
     }catch(e){
         var nm = "";

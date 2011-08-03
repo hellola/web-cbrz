@@ -6,7 +6,8 @@ var express = require('express');
 var webcbr = require('./webcbr');
 var config = require('./config');
 var path = require('path');
-var io = require('socket.io'); 
+var nowjs = require("now");
+var adminManager = require("./admin");
 
 var app = module.exports = express.createServer();
 // Configuration
@@ -122,9 +123,19 @@ app.get('/navigateToFile/:comicBookName/:currentFile',function(req,res) {
  });
 })
 
+app.get('/admin/',function(req,res) {
+  res.render('admin', {
+        title: 'Admin'
+  });
+});
 
+app.get('/clearDbStore/',function(req,res) {
+  adminManager.clearDB();
+  res.render('admin', {
+        title: 'Admin'
+  });
+});
 
-var nowjs = require("now");
 var everyone = nowjs.initialize(app);
 app.listen(3000,'0.0.0.0');
 
