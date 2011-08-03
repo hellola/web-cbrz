@@ -50,10 +50,8 @@ var performExtraction = function(cmd,folder,comicbook,callback){
                     folderToLoad = creationCheck[0].toString().substring(10);
                 }
                 fs.readdir(folderToLoad,function(err,files){
-                   console.log('length: ' + files.length);
-                   webcbr.socketServer.sockets.on('connection', function (socket) {
-                         socket.broadcast.emit({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(folderToLoad).replace('/','')});
-                         });
+                    console.log('length: ' + files.length);
+
                     for (var i=0;i++;i<files.length) {
                         console.log('adding file to db');
                         file =  new model.files_model();
@@ -61,8 +59,11 @@ var performExtraction = function(cmd,folder,comicbook,callback){
                         file.read =0;
                         comicbook.files.push(file);
                     }
-                    comicbook.save();
-		    callback();
+                    comicbook.save(function(err){
+				//console.log('sending browser notification');
+			    //webcbr.everyone.now.distribute({'extraction': 'complete','firstFile':files[0],'comicName':pathFixer.basename(folderToLoad).replace('/','')});
+			    callback();
+		    });
                 });
             };
         });
