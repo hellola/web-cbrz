@@ -1,6 +1,6 @@
 webcbr = {
     init : function(webserverURL) {
-        webcbr.initSockets();
+        webcbr.initSockets(webserverURL);
         webcbr.getComicFiles();
         $('a.prev').click(function(){
             webcbr.nav.prev();
@@ -31,7 +31,7 @@ webcbr = {
 
     getComicFiles: function() {
         var url = encodeURI('http://'+document.location.host+'/getFiles/' + webcbr.getCurrentComicBook());
-        console.log('getting url: ' +url); 
+        //console.log('getting url: ' +url); 
         $.getJSON(url,function(data) { webcbr.showComicBookFiles(data)});
     },
     CurrentFiles : [],
@@ -49,7 +49,7 @@ webcbr = {
         for (var i=0;i<webcbr.CurrentFiles.length;i++)
         {
             var read = '';
-            console.log('read: ' + webcbr.CurrentFiles[i].read);
+            //console.log('read: ' + webcbr.CurrentFiles[i].read);
             if (webcbr.CurrentFiles[i].read == 1) {
                read  = ' read'; 
             }
@@ -61,21 +61,21 @@ webcbr = {
         //set click for navigation
         $('a.comicnav').click(function(event){
            event.preventDefault(); 
-           console.log('comicnav clicked');
+           //console.log('comicnav clicked');
            var bookName = $('a.next').attr('bookName');
            var fileName = $(this).attr('index');
            //var url = '/navigateToFile/'+encodeURI(bookName)+'/'+encodeURI(fileName);
            $('a.next,a.prev').attr('filename',fileName);
            var temp = '/viewImage/'+encodeURI(bookName)+'/'+encodeURI(fileName);
-           console.log('newImage: ' + temp);
+           //console.log('newImage: ' + temp);
            $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
            webcbr.updateSelected();
         });
     },
     updateSelected: function() {
-        console.log('webcbr.updateSelected');
+        //console.log('webcbr.updateSelected');
         var current = decodeURI(webcbr.getCurrentIndex());
-        console.log('current index: ' +current )
+        //console.log('current index: ' +current )
         $('ul#nav a[index='+current+']').addClass('read');
         //highlight current one based on previous next buttons
         $('ul#nav a').each(function() { 
@@ -101,7 +101,7 @@ next : function() {
             var index = Number(fileName) + 1;
             $('a.prev,a.next').attr('filename',index);
                var temp = '/viewImage/'+bookName+'/'+index;
-               console.log('newImage: ' + temp);
+               //console.log('newImage: ' + temp);
                $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
                webcbr.updateSelected();
             },
@@ -111,7 +111,7 @@ prev : function() {
             var index = Number(fileName) - 1;
             $('a.prev,a.next').attr('filename',index);
                var temp = '/viewImage/'+bookName+'/'+index;
-               console.log('newImage: ' + temp);
+               //console.log('newImage: ' + temp);
                $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
                webcbr.updateSelected();
             }
@@ -125,16 +125,13 @@ prev : function() {
         return '';
     },
     initSockets: function(webserverURL) {
-        var socket = io.connect(webserverURL);
-        socket.on('message', function(json){ 
-            console.log(json);
-            if(json.extraction == 'complete'){
-                console.log('extraction complete, showing images');
-                var temp = 'http://'+document.location.host+'/viewImage/'+encodeURI(json.comicName)+'/'+encodeURI(json.firstFile);
-                console.log(temp);
+	now.receive = function(name, message){
+            if(message.extraction == 'complete'){
+                //console.log('extraction complete, showing images');
+                var temp = 'http://'+document.location.host+'/viewImage/'+encodeURI(message.comicName)+'/'+encodeURI(message.firstFile);
+                //console.log(temp);
                 $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
             };
-        });
-
+	}
     }
 };
