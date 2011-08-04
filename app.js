@@ -8,6 +8,8 @@ var config = require('./config');
 var path = require('path');
 var nowjs = require("now");
 var adminManager = require("./admin");
+var rimraf = require('rimraf');
+var fs = require('fs');
 
 var app = module.exports = express.createServer();
 // Configuration
@@ -130,10 +132,13 @@ app.get('/admin/',function(req,res) {
 });
 
 app.get('/clearDbStore/',function(req,res) {
-  adminManager.clearDB();
-  res.render('admin', {
-        title: 'Admin'
-  });
+    adminManager.clearDB();
+    rimraf.sync(app.settings.tempdir);
+    fs.mkdir(app.settings.tempdir,0700,function(){
+          res.render('admin', {
+                title: 'Admin'
+          });          
+    });
 });
 
 var everyone = nowjs.initialize(app);

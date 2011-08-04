@@ -1,7 +1,7 @@
 webcbr = {
     init : function(webserverURL) {
         webcbr.initSockets(webserverURL);
-        //webcbr.getComicFiles();
+        webcbr.getComicFiles();
         $('a.prev').click(function(){
             webcbr.nav.prev();
         });
