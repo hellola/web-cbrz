@@ -25,20 +25,32 @@ var comicbook = new Schema({
     files : [Files]
 });
 
+var webUsers = new Schema({
+      username          : String,
+      password          : String,
+      email             : String
+});
+
+//This is not implemented anywhere and is here as a reference for future 
+var appSettings = new Schema({
+      comicPath : String,
+      tempPath : String
+});
+
 
 var files_base = mongoose.model('Files',Files);
 var files_model = mongoose.model('Files');
 
 var comicbook_base = mongoose.model('comicbook',comicbook);
 var comicbook_model = mongoose.model('comicbook');
-
+mongoose.model('webUsers',webUsers);
+var webUsersModel = mongoose.model('webUsers');
 
 models.files_base = files_base;
 models.files_model= files_model;
 
-
 models.comicbook_base = comicbook_base;
 models.comicbook_model= comicbook_model;
-
+models.webUsersModel = webUsersModel;
 
 module.exports = models;

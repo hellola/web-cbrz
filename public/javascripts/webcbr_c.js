@@ -1,6 +1,6 @@
 webcbr = {
-    init : function(webserverURL) {
-        webcbr.initSockets(webserverURL);
+    init : function() {
+        webcbr.initSockets();
         webcbr.getComicFiles();
         $('a.prev').click(function(){
             webcbr.nav.prev();
@@ -124,13 +124,11 @@ webcbr = {
         }
         return '';
     },
-    initSockets: function(webserverURL) {
+    initSockets: function() {
 	now.receive = function(name, message){
             if(message.extraction == 'complete'){
-                console.log('extraction complete, showing images');
                 webcbr.getComicFiles();
                 var temp = 'http://'+document.location.host+'/viewImage/'+encodeURI(message.hash)+'/0';
-                console.log(temp);
                 $(".placeholder").html('<img onclick="webcbr.nav.next()" src=' + temp  +'>'); 
             };
 	}

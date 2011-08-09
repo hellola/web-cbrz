@@ -5,11 +5,11 @@ init = function(app) {
     {
         app.set('tempdir','/Users/jameelhaffejee/dev/node/web-cbrz/temp/');
         app.set('comicdir','/Users/jameelhaffejee/dev/node/web-cbrz/tempother/');
-        app.set('webserverURL','http://localhost:3000');
     }
     
 }
 config.mongoserver = 'mongodb://localhost/comics';
+config.mongosecret = 'kasjdflksdflksafjlkasdjflksdjflak';
 
 config.init = init;
 module.exports = config;
