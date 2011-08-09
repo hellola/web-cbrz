@@ -8,6 +8,21 @@ var webcbr = {};
 var hashlib = require('hashlib');
 webcbr.socketServer = {};
 
+var sort_by = function(field, reverse, primer){
+    reverse = (reverse) ? -1 : 1;
+    return function(a,b){
+        a = a[field];
+        b = b[field];
+        if (typeof(primer) != 'undefined'){
+            a = primer(a);
+            b = primer(b);
+        }
+        if (a<b) return reverse * -1;
+        if (a>b) return reverse * 1;
+        return 0;
+    }
+};
+
 var extractCbz = function(filepath, tempdirpath,comicbook,callback) {
     var cmd = '';
     var fileParts = filepath.split('/');
@@ -120,6 +135,7 @@ var getComicBookFilePath = function(app, comicBookHash, index, callback) {
         var filename = "";
         if (comicbook) {
             if (comicbook.files.length > 0) {
+                comicbook.files.sort(sort_by('filename',false,function(a){ return a.toUpperCase()}));
                 if (comicbook.files.length > index) {
                     filename = comicbook.files[index].filename;
                      //mark as read

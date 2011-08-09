@@ -78,8 +78,12 @@ app.get("/openfile/:path", function(req, res) {
 }); 
 
 app.get("/getFiles/:comicBookName", function(req, res) {
-    req.session.authed ? (console.log("getcomicbookfiles: " + req.params.comicBookName), webcbr.getComicBookFiles(req.params.comicBookName, app, function(a) {
-        console.log("reading files list: " + req.length + " files: " + a), res.contentType("application/json"), res.send(JSON.stringify(a));
+    req.session.authed ? (
+        console.log("getcomicbookfiles: " + req.params.comicBookName), 
+        webcbr.getComicBookFiles(req.params.comicBookName, app, function(a) {
+            console.log("reading files list: " + req.length + " files: " + a), 
+            res.contentType("application/json"), 
+            res.send(JSON.stringify(a));
     })) : res.redirect("/login");
 }); 
 
