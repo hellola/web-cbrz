@@ -1,150 +1,145 @@
 /**
  * Module dependencies.
  */
+var express = require("express"), 
+    webcbr = require("./webcbr"), 
+    config = require("./config"), 
+    path = require("path"), 
+    nowjs = require("now"), 
+    adminManager = require("./admin"), 
+    rimraf = require("rimraf"), 
+    fs = require("fs"), 
+    app = module.exports = express.createServer();
 
-var express = require('express');
-var webcbr = require('./webcbr');
-var config = require('./config');
-var path = require('path');
-var nowjs = require("now");
-var adminManager = require("./admin");
-var rimraf = require('rimraf');
-var fs = require('fs');
-
-var app = module.exports = express.createServer();
-// Configuration
-
-app.configure(function(){
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
-  //app.use(express.cookieParser());
-  //app.use(express.session({secret:'comicsrule', store: new mongo_store() }));
-});
-
-app.configure('development', function(){
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-});
-
-app.configure('production', function(){
-  app.use(express.errorHandler()); 
-});
-
+app.configure(function() {
+    app.set("views", __dirname + "/views"), app.set("view engine", "jade"), app.use(express.bodyParser()), app.use(express.methodOverride()), app.use(app.router), app.use(express.static(__dirname + "/public"));
+}); 
+app.configure("development", function() {
+    app.use(express.errorHandler({
+        dumpExceptions: !0,
+        showStack: !0
+    }));
+}); 
+app.configure("production", function() {
+    app.use(express.errorHandler());
+}); 
 config.init(app);
-
-// Routes
-
-app.get('/', function(req, res){
-   res.redirect('/list/');
-});
-
-app.get('/openfile/:path', function(req, res){
-  var files = webcbr.openfile(req.params.path,res,app);
-  var tempFolder = req.params.path.split('_');
-  var fileFolder = tempFolder[tempFolder.length - 1];
-  res.render('fileList', {
-    title: 'web cbr and cbz reader',
-    locals:{ list: files,
-             firstFile : '/read/'+fileFolder }
-  });
-});
-
-
-app.get('/getFiles/:comicBookName', function(req, res){
-    console.log('getcomicbookfiles: ' + req.params.comicBookName);
-    webcbr.getComicBookFiles(req.params.comicBookName,app,function(files) {
-    console.log('reading files list: ' + files.length + ' files: ' + files);
-    res.contentType('application/json'); 
-    res.send(JSON.stringify(files))
-  });
-});
-
-
-app.get('/viewImage/:comicBookHash/:index', function(req, res){
-    //get comic name without path
-    //var p = req.params.comicBookName.replace(/_/g,'/').split('/');
-    //var cname = p[p.length-1];
-    webcbr.getComicBookFilePath(app, req.params.comicBookHash, req.params.index, function (filePath) {
-    res.sendfile(filePath);
+app.get("/login", function(a, b) {
+    b.render("login", {
+        title: "Please login below"
     });
-});
-
-
-app.get(/\/list\/(.*$)/, function(req, res){
-  res.render('list', {
-    title: 'web cbr and cbz reader',
-    locals:{ list: webcbr.list(req.params[0],app),webserverURL:app.settings.webserverURL}
-  });
-});
-
-app.get(/\/read\/(.*$)/, function(req, res){
-  webcbr.readFirstFileName(req.params[0],app,function(ff,comicName,comicHash) {
-      console.log('reading first returned filename: ' + ff + ' hash: ' + comicHash + ', Name:' + comicName);
-      res.render('read', {
-        title: 'Reading: ' +  comicName,
-        locals:{ firstFile:ff,currentBook: encodeURIComponent(comicHash),webserverURL:app.settings.webserverURL}
-      });
-  });
-});
-
-app.get(/\/getNextFile\/([^\/]*)\/([^\/]*$)/, function(req, res){
-  webcbr.navigateTo(req.params[0],req.params[1].replace('\n',''),1,app,function(ff) {
-  res.partial('ajaxResponse', {
-    locals:{ fileName:ff }
-  });
- });
-});
-
-
-app.get(/\/getPrevFile\/([^\/]*)\/([^\/]*)/, function(req, res){
-  webcbr.navigateTo(req.params[0],req.params[1].replace('\n',''),-1,app,function(ff) {
-  res.partial('ajaxResponse', {
-    locals:{ fileName:ff }
-  });
- });
-});
-
-app.get('/navigateTo/:comicBookName/:currentFile/:direction',function(req,res) {
-  webcbr.navigateTo(req.params.comicBookName,req.params.currentFile.replace('\n',''),req.params.direction,app,function(ff) {
-  res.partial('ajaxResponse', {
-    locals:{ fileName:ff }
-  });
- });
-})
-
-
-
-app.get('/navigateToFile/:comicBookName/:currentFile',function(req,res) {
-  webcbr.navigateTo(req.params.comicBookName,req.params.currentFile.replace('\n',''),0,app,function(ff) {
-  res.partial('ajaxResponse', {
-    locals:{ fileName:ff }
-  });
- });
-})
-
-app.get('/admin/',function(req,res) {
-  res.render('admin', {
-        title: 'Admin'
-  });
-});
-
-app.get('/clearDbStore/',function(req,res) {
-    adminManager.clearDB();
-    rimraf.sync(app.settings.tempdir);
-    fs.mkdir(app.settings.tempdir,0700,function(){
-          res.render('admin', {
-                title: 'Admin'
-          });          
+}); 
+app.post("/login", function(a, b) {
+    a.body.username ? dbMan.webUsersModel.findOne({
+        username: a.body.username
+    }, function(c, d) {
+        if (c) console.log(c); else {
+            a.session.authed = bcrypt.compare_sync(a.body.password, d.password), a.session.username = a.body.username, b.redirect("/");
+            return;
+        }
+    }) : b.render("login", {
+        title: "Please login below"
     });
+}); 
+app.get("/", function(a, b) {
+    b.redirect("/list/");
+}); 
+app.get("/openfile/:path", function(a, b) {
+    if (a.session.authed) {
+        var c = webcbr.openfile(a.params.path, b, app), d = a.params.path.split("_"), e = d[d.length - 1];
+        b.render("fileList", {
+            title: "web cbr and cbz reader",
+            locals: {
+                list: c,
+                firstFile: "/read/" + e
+            }
+        });
+    } else b.redirect("/login");
+}); 
+app.get("/getFiles/:comicBookName", function(a, b) {
+    a.session.authed ? (console.log("getcomicbookfiles: " + a.params.comicBookName), webcbr.getComicBookFiles(a.params.comicBookName, app, function(a) {
+        console.log("reading files list: " + a.length + " files: " + a), b.contentType("application/json"), b.send(JSON.stringify(a));
+    })) : b.redirect("/login");
+}); 
+app.get("/viewImage/:comicBookHash/:index", function(a, b) {
+    a.session.authed ? webcbr.getComicBookFilePath(app, a.params.comicBookHash, a.params.index, function(a) {
+        b.sendfile(a);
+    }) : b.redirect("/login");
+}); 
+app.get(/\/list\/(.*$)/, function(a, b) {
+    b.render("list", {
+        title: "web cbr and cbz reader",
+        locals: {
+            list: webcbr.list(a.params[0], app),
+            webserverURL: app.settings.webserverURL
+        }
+    });
+}); 
+app.get(/\/read\/(.*$)/, function(a, b) {
+    a.session.authed ? webcbr.readFirstFileName(a.params[0], app, function(a, c, d) {
+        console.log("reading first returned filename: " + a + " hash: " + d + ", Name:" + c), b.render("read", {
+            title: "Reading: " + c,
+            locals: {
+                firstFile: a,
+                currentBook: encodeURIComponent(d),
+                webserverURL: app.settings.webserverURL
+            }
+        });
+    }) : b.redirect("/login");
+}); 
+app.get(/\/getNextFile\/([^\/]*)\/([^\/]*$)/, function(a, b) {
+    a.session.authed ? webcbr.navigateTo(a.params[0], a.params[1].replace("\n", ""), 1, app, function(a) {
+        b.partial("ajaxResponse", {
+            locals: {
+                fileName: a
+            }
+        });
+    }) : b.redirect("/login");
+}); 
+app.get(/\/getPrevFile\/([^\/]*)\/([^\/]*)/, function(a, b) {
+    a.session.authed ? webcbr.navigateTo(a.params[0], a.params[1].replace("\n", ""), -1, app, function(a) {
+        b.partial("ajaxResponse", {
+            locals: {
+                fileName: a
+            }
+        });
+    }) : b.redirect("/login");
+}); 
+app.get("/navigateTo/:comicBookName/:currentFile/:direction", function(a, b) {
+    a.session.authed ? webcbr.navigateTo(a.params.comicBookName, a.params.currentFile.replace("\n", ""), a.params.direction, app, function(a) {
+        b.partial("ajaxResponse", {
+            locals: {
+                fileName: a
+            }
+        });
+    }) : b.redirect("/login");
+}); 
+app.get("/navigateToFile/:comicBookName/:currentFile", function(a, b) {
+    a.session.authed ? webcbr.navigateTo(a.params.comicBookName, a.params.currentFile.replace("\n", ""), 0, app, function(a) {
+        b.partial("ajaxResponse", {
+            locals: {
+                fileName: a
+            }
+        });
+    }) : b.redirect("/login");
+});
+app.get("/admin/", function(a, b) {
+    a.session.authed ? b.render("admin", {
+        title: "Admin"
+    }) : b.redirect("/login");
+}); 
+app.get("/clearDbStore/", function(a, b) {
+    a.session.authed ? (adminManager.clearDB(), rimraf.sync(app.settings.tempdir), fs.mkdir(app.settings.tempdir, 448, function() {
+        b.render("admin", {
+            title: "Admin"
+        });
+    })) : b.redirect("/login");
 });
 
 var everyone = nowjs.initialize(app);
-app.listen(3000,'0.0.0.0');
 
-webcbr.everyone = everyone;
-webcbr.everyone.now.distribute = function(message){
-	everyone.now.receive('backend', message);
+app.listen(3000, "0.0.0.0"); 
+webcbr.everyone = everyone; 
+webcbr.everyone.now.distribute = function(a) {
+    everyone.now.receive("backend", a);
 };
