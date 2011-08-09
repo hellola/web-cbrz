@@ -76,6 +76,7 @@ var getComicBookFiles = function(comicBookHash, app, callback) {
     model.comicbook_model.findOne({'hash': comicBookHash}, function(err,comicbook) {
         if (comicbook) {
             var files = comicbook.files;
+            files.sort(sort_by('filename',false,function(a){ return a.toUpperCase()}));
             if (callback) {
                 callback(files);
             }
