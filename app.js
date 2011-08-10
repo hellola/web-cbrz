@@ -94,13 +94,16 @@ app.get("/viewImage/:comicBookHash/:index", function(req, res) {
 }); 
 
 app.get(/\/list\/(.*$)/, function(req, res) {
-    res.render("list", {
-        title: "web cbr and cbz reader",
-        locals: {
-            list: webcbr.list(req.params[0], app),
-            files: webcbr.listSimple(req.params[0], app)
-        }
-    });
+       webcbr.listSimple(req.params[0], app,function(newfiles){
+            res.render("list", {
+                title: "web cbr and cbz reader",
+                locals: {
+                    list: [],
+                    files:newfiles 
+                }
+            });
+        });         
+    
 }); 
 
 app.get(/\/read\/(.*$)/, function(req, res) {

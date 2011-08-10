@@ -1,4 +1,5 @@
-var fs = require('fs');
+var fs = require('fs'),
+    config = require("./config"); 
 var pathFixer = require('path');
 var util = require('util'),
     exec = require('child_process').exec,
@@ -6,6 +7,7 @@ var util = require('util'),
 var model = require('./webcbr_models');
 var webcbr = {};
 var hashlib = require('hashlib');
+var im = require('imagemagick');
 webcbr.socketServer = {};
 
 var sort_by = function(field, reverse, primer){
@@ -26,6 +28,7 @@ var sort_by = function(field, reverse, primer){
 var getFirstFileNameFromArchive = function(filepath,callback){
     var cmd = '';
     cmd = 'unrar lb "'+filepath + '"';
+        console.log(cmd);
     child = exec(cmd, function(error,stdout,stderr) {
             if (error !== null){
                 console.log('exec error: ' + error);
@@ -33,8 +36,13 @@ var getFirstFileNameFromArchive = function(filepath,callback){
             }
             if(stdout){
                 var files = stdout.split('\n');
+                var lastFile = files[files.length -2];
                 files.sort();
-                callback(null,files[1]);
+                if(lastFile.indexOf('.jpg') == -1){
+                    callback(null,lastFile+'/'+files[1]);
+                }else{
+                    callback(null,files[1]);
+                }
             };
         });
 };
@@ -42,18 +50,19 @@ var getFirstFileNameFromArchive = function(filepath,callback){
 var extractFirstImageOnly = function(filepath,thumbdir,callback){
     getFirstFileNameFromArchive(filepath,function(error,firstFile){
         var cmd = '';
-        cmd = 'unrar lb "'+filepath + '"';
         cmd = 'unrar e -y -n"'+firstFile+'" "'+filepath+'" -d "'+thumbdir+'"';
+        console.log(cmd);
         child = exec(cmd, function(error,stdout,stderr) {
                 if (error !== null){
                     console.log('exec error: ' + error);
                     callback(error);
                 }
                 if(stdout){
-                    fs.stat(pathFixer.join(thumbdir,firstFile), function (err, stats) {
+                    var parts = firstFile.split('/');
+                    fs.stat(pathFixer.join(thumbdir,parts[parts.length - 1]), function (err, stats) {
                           if (err) throw err;
                           if(stats.isFile()){
-                              callback(null,pathFixer.join(thumbdir,firstFile));
+                              callback(null,pathFixer.join(thumbdir,parts[parts.length - 1]));
                           }else{
                               callback('file not found'); 
                           }
@@ -63,11 +72,26 @@ var extractFirstImageOnly = function(filepath,thumbdir,callback){
     });
 };
 
+var resizeImageToThumbnail = function(fullPath,callback){
+    var smallImage = fullPath.replace('.jpg','-small.jpg');
+    im.resize({ srcPath: fullPath,
+                dstPath: smallImage,
+                width:   600,
+                height:  456 
+                }, 
+                function(err, stdout, stderr){
+                    if (err) throw err
+                    callback(null,smallImage);
+    });
+};
 
-//var extractFirstImageOnly = function(firstFileName,filepath){
-    //cmd = 'unrar e -n"i'+firstFileName+'" "'+filepath+'"';
-    
-//};
+var verifyImageSize = function(fullPath,callback){
+    im.identify(['-format', '%wx%h', fullPath], function(err, output){
+          if (err) throw err;
+          console.log('Shot at '+JSON.stringify(output));
+          callback(null,output);
+    })
+};
 
 var extractCbz = function(filepath, tempdirpath,comicbook,callback) {
     var cmd = '';
@@ -276,7 +300,7 @@ var navigateTo = function(comicBookHash,currentFileName,direction,app,callback) 
     });
 };
 
-var createComic = function(comicBookName, forceReload) {
+var createComic = function(comicBookName, forceReload,callback) {
     console.log('creating comic');
     model.comicbook_model.findOne({'name': comicBookName}, function(err,comicbook) {
         if (comicbook) {
@@ -287,88 +311,73 @@ var createComic = function(comicBookName, forceReload) {
             else
             {
                 console.log('stopping comicbook create');
+                callback(comicbook);
                 return;
             }
-    }
-    if (comicbook == null) { console.log('comic book is null/ not found'); }//make  a new one
-    comicbook = new model.comicbook_model();
-    comicbook.name = comicBookName;
-    comicbook.hash = hashlib.md5(comicBookName);
-    comicbook.save();
+        }
+        if (comicbook == null) { 
+            console.log('comic book is null/ not found'); 
+        }//make  a new one
+        var pathToComic = pathFixer.join(config.comicdir,comicBookName)
+
+        extractFirstImageOnly(pathToComic,config.thumbdir,function(error,thumbImage){
+            console.log('extracted first image');
+            webcbr.resizeImageToThumbnail(thumbImage,function(err,tinyImage){
+                console.log('resized first image');
+                comicbook = new model.comicbook_model();
+                comicbook.name = comicBookName;
+                comicbook.hash = hashlib.md5(comicBookName);
+                comicbook.thumbImage = tinyImage;
+                comicbook.save(function(err){
+                   if(!err){
+                        callback(comicbook);
+                   } 
+                });    
+            });
+             
+        });
     });
 };
 
-
-var list = function(path,app) {
+var listSimple = function(path,app,callback) {
     var relpath = "";
-    if (path == '') { path = app.settings.comicdir}
-    else { relpath = path; path = app.settings.comicdir + path} 
+    if (path == '') { 
+        path = app.settings.comicdir
+    } else { 
+        relpath = path; path = app.settings.comicdir + path
+    }; 
     if (relpath[0] == '/') { relpath = relpath.substr(1,relpath.length -1)}
     if (relpath != '') { relpath = relpath + '/'}
-    console.log(relpath);
     path = path.replace(/_/g,'/');
     fils = fs.readdirSync(path); 
     var files = fils.filter(function(v) { return /(\.(cbr|cbz)$)|(^[^\.]*$)/.test(v);});
     var newfiles = new Array();
-    newfiles.push('<li class="up" onclick="webcbr.moveUp()"><img src="/images/up.gif" alt=".." widt="32" height="32"/></li>');
-    for (file in fils) {
-        var fpath = fils[file];
-        var stat = fs.lstatSync(pathFixer.join(path +'/'+ fpath));
-        console.log('listing: ' + pathFixer.join(path + '/' + fpath));
-        var l = "", imgsrc="", filePath = "";
-        if (stat.isFile()) {
-             l = "/read/" 
-             imgsrc="/images/comic.png";
-             filePath = l + relpath + hashlib.md5(fpath);
-             createComic(fpath, false );
-             } 
-        if (stat.isDirectory()) {
-             l = "/list/" 
-             imgsrc="/images/folder.png";
-             filePath = l + relpath + fpath;
-             } 
-        console.log('d: ' + stat.isDirectory());
-                filePath = filePath.replace(/\/\//,"/");
-        var nfile = '<li class="file"><a href="' + filePath+'"><img src="'+imgsrc+'" width="32" height="32" alt=""/><span>'+fpath+'</span></a></li>';
-        //var nfile = '<li class="file"><a href="'+l+encodeURIComponent((fils[file]).replace(/\//g,'_')) + '">'+fils[file]+'</a></li>';
-       newfiles.push(nfile);
-    }
-    return '<ul class="files">'+newfiles.join('')+'</ul>';
+    var buildData = function(i){
+       if(i < fils.length){
+           var fpath = fils[i];
+           var stat = fs.lstatSync(pathFixer.join(path +'/'+ fpath));
+           if (stat.isFile()) {
+                createComic(fpath, false ,function(comicbook){
+                        var thumb = comicbook.thumbImage;
+                        var parts = config.thumbdir.split('/');
+                        
+                        thumb = thumb.replace(config.thumbdir,parts[parts.length-2] +'/'+parts[parts.length-1].replace('/',''));
+                        newfiles.push({'name':fpath,'thumb':thumb,'link':comicbook.hash});
+                        buildData(i+1);
+                });
+           }else{
+                newfiles.push({'name':fpath,'thumb':'','link':fpath});
+                buildData(i+1);
+           }
+       }else{
+         if (callback) {
+            callback(newfiles);
+         }
+       } 
+    };
+    buildData(0);
 };
 
-var listSimple = function(path,app) {
-    var relpath = "";
-    if (path == '') { path = app.settings.comicdir}
-    else { relpath = path; path = app.settings.comicdir + path} 
-    if (relpath[0] == '/') { relpath = relpath.substr(1,relpath.length -1)}
-    if (relpath != '') { relpath = relpath + '/'}
-    console.log(relpath);
-    path = path.replace(/_/g,'/');
-    fils = fs.readdirSync(path); 
-    var files = fils.filter(function(v) { return /(\.(cbr|cbz)$)|(^[^\.]*$)/.test(v);});
-    var newfiles = new Array();
-    for (file in fils) {
-        var fpath = fils[file];
-        var stat = fs.lstatSync(pathFixer.join(path +'/'+ fpath));
-        var l = "", imgsrc="", filePath = "";
-        if (stat.isFile()) {
-             l = "/read/" 
-             imgsrc="/images/comic.png";
-             filePath = l + relpath + hashlib.md5(fpath);
-             createComic(fpath, false );
-        } 
-        if (stat.isDirectory()) {
-             l = "/list/" 
-             imgsrc="/images/folder.png";
-             filePath = l + relpath + fpath;
-        } 
-        filePath = filePath.replace(/\/\//,"/");
-       newfiles.push(fpath);
-    }
-    return newfiles;
-};
-
-webcbr.list = list;
 webcbr.listSimple = listSimple;
 webcbr.extractCbz = extractCbz;
 webcbr.readFirstFileName = readFirstFileName;
@@ -377,5 +386,6 @@ webcbr.getComicBookFiles = getComicBookFiles;
 webcbr.getComicBookFilePath = getComicBookFilePath;
 webcbr.getFirstFileNameFromArchive = getFirstFileNameFromArchive;
 webcbr.extractFirstImageOnly = extractFirstImageOnly;
+webcbr.resizeImageToThumbnail = resizeImageToThumbnail;
 
 module.exports = webcbr;

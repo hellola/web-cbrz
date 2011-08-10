@@ -1,4 +1,3 @@
-h1= title
 script
 	$(document).ready(function() {	
 
@@ -43,26 +42,23 @@ script
 		
 	});//Close Function
 
-p Welcome to #{title}
-p The following pages were extracted from the comic 
-!= list
-
 div(id="main",class="container")
 	div(class="main_image")
-		img(src="/banner1.jpg",alt="banner1")
+		img(src="/#{files[0].thumb}",alt="banner1")
 		div(class="desc")
 			a(href="#",class="collapse") Close Me!
 			div(class="block")
-				h2 #{files[0]}
-				p 
+				h2 #{files[0].name}
+				a(href="/read/#{files[0].link}") Read Me
 				
 	- each f in files 
 		div(class="image_thumb")
 			ul
 				li
-					a(href="/banner1.jpg")
-						img(src="/banner1_thumb.jpg",alt="Slowing Dow")
+					a(href="/#{f.thumb}")
+						img(src="#{f.thumb}",alt="Slowing Dow")
 					div(class="block")
-						h2 #{f}
+						h2 #{f.name}
+						a(href="/read/#{f.link}") Read Me
 						p Some comic description
 	

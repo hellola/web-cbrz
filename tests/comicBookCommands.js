@@ -27,8 +27,23 @@ vows.describe('Comic Book Commands').addBatch({
         'we get a string': function (error,firstFileName) {
             assert.isString(firstFileName);
         },
-        'which contains the word thumbs': function (error,firstFileName) {
-            assert.notEqual(firstFileName.indexOf('thumbs'),-1);
+        'which contains the thumbnail dir in its path': function (error,firstFileName) {
+            assert.notEqual(firstFileName.indexOf(config.thumbdir),-1);
+        }
+    },
+    'When resizing a image': {
+        topic:function(){ 
+            var test = this.callback;
+            webcbr.extractFirstImageOnly(pathFixer.join(config.comicdir,comicName),config.thumbdir,function(error,fullPath){
+                    webcbr.resizeImageToThumbnail(fullPath,test);
+            });
+        }, 
+
+        'we get a string': function (error,firstFileName) {
+            assert.isString(firstFileName);
+        },
+        'that is 600x456': function (error,firstFileName) {
+            assert.notEqual(firstFileName.indexOf('-small.jpg'),-1);
         }
     }
 }).export(module); // Export the Suite
