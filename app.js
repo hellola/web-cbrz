@@ -97,7 +97,8 @@ app.get(/\/list\/(.*$)/, function(req, res) {
     res.render("list", {
         title: "web cbr and cbz reader",
         locals: {
-            list: webcbr.list(req.params[0], app)
+            list: webcbr.list(req.params[0], app),
+            files: webcbr.listSimple(req.params[0], app)
         }
     });
 }); 
