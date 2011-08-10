@@ -23,9 +23,46 @@ var sort_by = function(field, reverse, primer){
     }
 };
 
-//var getFirstFileNameFromArchive = function(){
-    //cmd = 'unrar lb "'+filepath + '"';
-//};
+var getFirstFileNameFromArchive = function(filepath,callback){
+    var cmd = '';
+    cmd = 'unrar lb "'+filepath + '"';
+    child = exec(cmd, function(error,stdout,stderr) {
+            if (error !== null){
+                console.log('exec error: ' + error);
+                callback(error);
+            }
+            if(stdout){
+                var files = stdout.split('\n');
+                files.sort();
+                callback(null,files[1]);
+            };
+        });
+};
+
+var extractFirstImageOnly = function(filepath,thumbdir,callback){
+    getFirstFileNameFromArchive(filepath,function(error,firstFile){
+        var cmd = '';
+        cmd = 'unrar lb "'+filepath + '"';
+        cmd = 'unrar e -y -n"'+firstFile+'" "'+filepath+'" -d "'+thumbdir+'"';
+        child = exec(cmd, function(error,stdout,stderr) {
+                if (error !== null){
+                    console.log('exec error: ' + error);
+                    callback(error);
+                }
+                if(stdout){
+                    fs.stat(pathFixer.join(thumbdir,firstFile), function (err, stats) {
+                          if (err) throw err;
+                          if(stats.isFile()){
+                              callback(null,pathFixer.join(thumbdir,firstFile));
+                          }else{
+                              callback('file not found'); 
+                          }
+                    });
+                };
+        });
+    });
+};
+
 
 //var extractFirstImageOnly = function(firstFileName,filepath){
     //cmd = 'unrar e -n"i'+firstFileName+'" "'+filepath+'"';
@@ -338,4 +375,7 @@ webcbr.readFirstFileName = readFirstFileName;
 webcbr.navigateTo = navigateTo;
 webcbr.getComicBookFiles = getComicBookFiles;
 webcbr.getComicBookFilePath = getComicBookFilePath;
+webcbr.getFirstFileNameFromArchive = getFirstFileNameFromArchive;
+webcbr.extractFirstImageOnly = extractFirstImageOnly;
+
 module.exports = webcbr;
