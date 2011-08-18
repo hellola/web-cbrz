@@ -7,8 +7,7 @@ var im = require('imagemagick');
 
 var getFirstFileNameFromArchive = function(filepath,callback){
     var cmd = '';
-    cmd = 'unrar lb "'+filepath + '"';
-        console.log(cmd);
+    cmd = '7z l "'+filepath + '"';
     child = exec(cmd, function(error,stdout,stderr) {
             if (error !== null){
                 console.log('exec error: ' + error);
@@ -16,12 +15,30 @@ var getFirstFileNameFromArchive = function(filepath,callback){
             }
             if(stdout){
                 var files = stdout.split('\n');
+                files = files.filter(function(val) {
+                    return val.substr(-3) === "jpg";
+                });
+                for(var i=0;i<files.length;i++){
+                     var fileParts = files[i].trim().split(' ');
+                     fileParts = fileParts.filter(function(val) {
+                         return val !== '';
+                     });
+                     files[i] = fileParts.splice(5).join(' ');
+                }
                 var lastFile = files[files.length -2];
                 files.sort();
-                if(lastFile.indexOf('.jpg') == -1){
-                    callback(null,lastFile+'/'+files[1]);
+                var returnFile = '';
+                for(var i=0;i<files.length;i++){
+                     if(files[i].indexOf('1') != -1){
+                         returnFile = files[i]; 
+                         break;
+                     };
+                }
+                var returnParts = returnFile.split('/'); 
+                if(returnParts.length > 1){
+                    callback(null,returnParts[1]);
                 }else{
-                    callback(null,files[1]);
+                    callback(null,returnParts[0]);
                 }
             };
         });
@@ -31,8 +48,8 @@ var getFirstFileNameFromArchive = function(filepath,callback){
 var extractFirstImageOnly = function(filepath,thumbdir,callback){
     getFirstFileNameFromArchive(filepath,function(error,firstFile){
         var cmd = '';
-        cmd = 'unrar e -y -n"'+firstFile+'" "'+filepath+'" -d "'+thumbdir+'"';
-        console.log(cmd);
+        //'7z e tempother/Red\ Sonja\ v4\ 045\ \(2009\)\ \(oddBot-DCP\).cbz -otemp "Red Sonja v4 045 p001 [2009] (oddBot-DCP).jpg" -r'
+        cmd = '7z e "'+filepath+'" -o"'+thumbdir+'" "'+firstFile+'" -r -y';
         child = exec(cmd, function(error,stdout,stderr) {
                 if (error !== null){
                     console.log('exec error: ' + error);

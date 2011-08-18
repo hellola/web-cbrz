@@ -7,7 +7,7 @@ var im = require('imagemagick');
 
 var getFirstFileNameFromArchive = function(filepath,callback){
     var cmd = '';
-    cmd = 'unzip -l "'+filepath + '"';
+    cmd = '7z l "'+filepath + '"';
     child = exec(cmd, function(error,stdout,stderr) {
             if (error !== null){
                 console.log('exec error: ' + error);
@@ -19,7 +19,11 @@ var getFirstFileNameFromArchive = function(filepath,callback){
                     return val.substr(-3) === "jpg";
                 });
                 for(var i=0;i<files.length;i++){
-                     files[i] = files[i].trim().split(' ').splice(6).join(' ');
+                     var fileParts = files[i].trim().split(' ');
+                     fileParts = fileParts.filter(function(val) {
+                         return val !== '';
+                     });
+                     files[i] = fileParts.splice(6).join(' ');
                 }
                 var lastFile = files[files.length -2];
                 files.sort();
@@ -30,7 +34,12 @@ var getFirstFileNameFromArchive = function(filepath,callback){
                          break;
                      };
                 }
-                callback(null,returnFile);
+                var returnParts = returnFile.split('/'); 
+                if(returnParts.length > 1){
+                    callback(null,returnParts[1]);
+                }else{
+                    callback(null,returnParts[0]);
+                }
             };
         });
 };
@@ -40,8 +49,7 @@ var extractFirstImageOnly = function(filepath,thumbdir,callback){
     getFirstFileNameFromArchive(filepath,function(error,firstFile){
         var cmd = '';
         //'7z e tempother/Red\ Sonja\ v4\ 045\ \(2009\)\ \(oddBot-DCP\).cbz -otemp "Red Sonja v4 045 p001 [2009] (oddBot-DCP).jpg" -r'
-        cmd = '7z e "'+filepath+'" -o"'+thumbdir+'" "'+firstFile+'" -r';
-        console.log(cmd);
+        cmd = '7z e "'+filepath+'" -o"'+thumbdir+'" "'+firstFile+'" -r -y';
         child = exec(cmd, function(error,stdout,stderr) {
                 if (error !== null){
                     console.log('exec error: ' + error);
@@ -83,8 +91,8 @@ var verifyImageSize = function(fullPath,callback){
     })
 };
 
-var rarManager = {};
-rarManager.getFirstFileNameFromArchive = getFirstFileNameFromArchive;
-rarManager.extractFirstImageOnly = extractFirstImageOnly;
-rarManager.resizeImageToThumbnail = resizeImageToThumbnail;
-module.exports = rarManager;
+var zipManager = {};
+zipManager.getFirstFileNameFromArchive = getFirstFileNameFromArchive;
+zipManager.extractFirstImageOnly = extractFirstImageOnly;
+zipManager.resizeImageToThumbnail = resizeImageToThumbnail;
+module.exports = zipManager;
