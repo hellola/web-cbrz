@@ -3,13 +3,57 @@ var vows = require('vows'),
     pathFixer = require('path');
 
 var config = require('../config');
-var webcbr = require('../webcbr');
+var rarManager = require('../rarManager');
+var zipManager = require('../zipManager');
 var comicName = 'asm.cbr';
+var comicNameZip = 'Red Sonja v4 045 (2009) (oddBot-DCP).cbz';
 
-vows.describe('Comic Book Commands').addBatch({
-    'When getting first file from a comic': {
+vows.describe('Comic Book Commands')
+//.addBatch({
+    //'When getting first file from a comic that is a cbr': {
+        //topic:function(){ 
+            //rarManager.getFirstFileNameFromArchive(pathFixer.join(config.comicdir,comicName),this.callback)
+        //}, 
+
+        //'we get a string': function (error,firstFileName) {
+            //assert.isString(firstFileName);
+        //},
+        //'which contains the number one': function (error,firstFileName) {
+            //assert.notEqual(firstFileName.indexOf('1'),-1);
+        //}
+    //},
+    //'When getting extracting first file from a comic that is a cbr': {
+        //topic:function(){ 
+            //rarManager.extractFirstImageOnly(pathFixer.join(config.comicdir,comicName),config.thumbdir,this.callback)
+        //}, 
+
+        //'we get a string': function (error,firstFileName) {
+            //assert.isString(firstFileName);
+        //},
+        //'which contains the thumbnail dir in its path': function (error,firstFileName) {
+            //assert.notEqual(firstFileName.indexOf(config.thumbdir),-1);
+        //}
+    //},
+    //'When resizing a image that is extracted from a cbr': {
+        //topic:function(){ 
+            //var test = this.callback;
+            //rarManager.extractFirstImageOnly(pathFixer.join(config.comicdir,comicName),config.thumbdir,function(error,fullPath){
+                    //rarManager.resizeImageToThumbnail(fullPath,test);
+            //});
+        //}, 
+
+        //'we get a string': function (error,firstFileName) {
+            //assert.isString(firstFileName);
+        //},
+        //'that is 600x456': function (error,firstFileName) {
+            //assert.notEqual(firstFileName.indexOf('-small.jpg'),-1);
+        //}
+    //}
+//})
+.addBatch({
+    'When getting first file from a comic that is a cbz': {
         topic:function(){ 
-            webcbr.getFirstFileNameFromArchive(pathFixer.join(config.comicdir,comicName),this.callback)
+            zipManager.getFirstFileNameFromArchive(pathFixer.join(config.comicdir,comicNameZip),this.callback)
         }, 
 
         'we get a string': function (error,firstFileName) {
@@ -19,9 +63,9 @@ vows.describe('Comic Book Commands').addBatch({
             assert.notEqual(firstFileName.indexOf('1'),-1);
         }
     },
-    'When getting extracting first file from a comic': {
+    'When getting extracting first file from a comic that is a cbz': {
         topic:function(){ 
-            webcbr.extractFirstImageOnly(pathFixer.join(config.comicdir,comicName),config.thumbdir,this.callback)
+            zipManager.extractFirstImageOnly(pathFixer.join(config.comicdir,comicNameZip),config.thumbdir,this.callback)
         }, 
 
         'we get a string': function (error,firstFileName) {
@@ -31,11 +75,11 @@ vows.describe('Comic Book Commands').addBatch({
             assert.notEqual(firstFileName.indexOf(config.thumbdir),-1);
         }
     },
-    'When resizing a image': {
+    'When resizing a image that is extracted from a cbz': {
         topic:function(){ 
             var test = this.callback;
-            webcbr.extractFirstImageOnly(pathFixer.join(config.comicdir,comicName),config.thumbdir,function(error,fullPath){
-                    webcbr.resizeImageToThumbnail(fullPath,test);
+            zipManager.extractFirstImageOnly(pathFixer.join(config.comicdir,comicNameZip),config.thumbdir,function(error,fullPath){
+                    zipManager.resizeImageToThumbnail(fullPath,test);
             });
         }, 
 

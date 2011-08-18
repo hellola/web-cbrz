@@ -7,7 +7,6 @@ var util = require('util'),
 var model = require('./webcbr_models');
 var webcbr = {};
 var hashlib = require('hashlib');
-var im = require('imagemagick');
 webcbr.socketServer = {};
 
 var sort_by = function(field, reverse, primer){
@@ -23,87 +22,6 @@ var sort_by = function(field, reverse, primer){
         if (a>b) return reverse * 1;
         return 0;
     }
-};
-
-var getFirstFileNameFromArchive = function(filepath,callback){
-    var cmd = '';
-    cmd = 'unrar vr "'+filepath + '"';
-        console.log(cmd);
-    child = exec(cmd, function(error,stdout,stderr) {
-            if (error !== null){
-                console.log('exec error: ' + error);
-                callback(error);
-            }
-            if(stdout){
-                var files = stdout.split('\n');
-                files.sort();
-                for (var k=0;k<files.length;k++) {
-                    if (files[k].indexOf('.jpg') > -1 || files[k].indexOf('.jpeg') > -1)
-                    {
-                        var index = files[k].indexOf('.jpg') +4;
-                        var path = files[k].substr(0,index);
-                        while (path[0] == ' ')
-                        {
-                            path = path.substr(1);
-                        }
-                        console.log('File found: ' + path);
-                        callback(null,path);
-                        return;
-                    }
-                }
-                //if(lastFile.indexOf('.jpg') == -1){
-                //   callback(null,lastFile+'/'+files[1]);
-                //}else{
-                //   callback(null,files[1]);
-                //}
-            };
-        });
-};
-
-var extractFirstImageOnly = function(filepath,thumbdir,callback){
-    getFirstFileNameFromArchive(filepath,function(error,firstFile){
-        var cmd = '';
-        cmd = 'unrar e -y -n"'+firstFile+'" "'+filepath+'" -d "'+thumbdir+'"';
-        console.log(cmd);
-        child = exec(cmd, function(error,stdout,stderr) {
-                if (error !== null){
-                    console.log('exec error: ' + error);
-                    callback(error);
-                }
-                if(stdout){
-                    var parts = firstFile.split('/');
-                    fs.stat(pathFixer.join(thumbdir,parts[parts.length - 1]), function (err, stats) {
-                          if (err) throw err;
-                          if(stats.isFile()){
-                              callback(null,pathFixer.join(thumbdir,parts[parts.length - 1]));
-                          }else{
-                              callback('file not found'); 
-                          }
-                    });
-                };
-        });
-    });
-};
-
-var resizeImageToThumbnail = function(fullPath,callback){
-    var smallImage = fullPath.replace('.jpg','-small.jpg');
-    im.resize({ srcPath: fullPath,
-                dstPath: smallImage,
-                width:   600,
-                height:  456 
-                }, 
-                function(err, stdout, stderr){
-                    if (err) throw err
-                    callback(null,smallImage);
-    });
-};
-
-var verifyImageSize = function(fullPath,callback){
-    im.identify(['-format', '%wx%h', fullPath], function(err, output){
-          if (err) throw err;
-          console.log('Shot at '+JSON.stringify(output));
-          callback(null,output);
-    })
 };
 
 var extractCbz = function(filepath, tempdirpath,comicbook,callback) {
@@ -397,8 +315,4 @@ webcbr.readFirstFileName = readFirstFileName;
 webcbr.navigateTo = navigateTo;
 webcbr.getComicBookFiles = getComicBookFiles;
 webcbr.getComicBookFilePath = getComicBookFilePath;
-webcbr.getFirstFileNameFromArchive = getFirstFileNameFromArchive;
-webcbr.extractFirstImageOnly = extractFirstImageOnly;
-webcbr.resizeImageToThumbnail = resizeImageToThumbnail;
-
 module.exports = webcbr;
