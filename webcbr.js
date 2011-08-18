@@ -27,7 +27,7 @@ var sort_by = function(field, reverse, primer){
 
 var getFirstFileNameFromArchive = function(filepath,callback){
     var cmd = '';
-    cmd = 'unrar lb "'+filepath + '"';
+    cmd = 'unrar vr "'+filepath + '"';
         console.log(cmd);
     child = exec(cmd, function(error,stdout,stderr) {
             if (error !== null){
@@ -36,13 +36,26 @@ var getFirstFileNameFromArchive = function(filepath,callback){
             }
             if(stdout){
                 var files = stdout.split('\n');
-                var lastFile = files[files.length -2];
                 files.sort();
-                if(lastFile.indexOf('.jpg') == -1){
-                    callback(null,lastFile+'/'+files[1]);
-                }else{
-                    callback(null,files[1]);
+                for (var k=0;k<files.length;k++) {
+                    if (files[k].indexOf('.jpg') > -1 || files[k].indexOf('.jpeg') > -1)
+                    {
+                        var index = files[k].indexOf('.jpg') +4;
+                        var path = files[k].substr(0,index);
+                        while (path[0] == ' ')
+                        {
+                            path = path.substr(1);
+                        }
+                        console.log('File found: ' + path);
+                        callback(null,path);
+                        return;
+                    }
                 }
+                //if(lastFile.indexOf('.jpg') == -1){
+                //   callback(null,lastFile+'/'+files[1]);
+                //}else{
+                //   callback(null,files[1]);
+                //}
             };
         });
 };
