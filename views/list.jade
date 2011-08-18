@@ -48,8 +48,8 @@ div(id="main",class="container")
 		div(class="desc")
 			a(href="#",class="collapse") Close Me!
 			div(class="block")
-				h2 #{files[0].name}
-				a(href="/read/#{files[0].link}") Read Me
+				h2 #{files[0].name}.readme
+				a(href="/read/#{files[0].link}",class="readme") Read Me
 				
 	- each f in files 
 		div(class="image_thumb")

@@ -63,6 +63,10 @@ a.comicnav
     border:1px solid #ccc;
     margin-right:1px;
 }
+a.readme
+{
+    padding-left:11px;
+}
 a.comicnav.read
 {
    color:!important #B7FF00;
@@ -144,6 +148,7 @@ a {color: #fff;}
 	font-size: 2em;
 	font-weight: normal;
 	margin: 0 0 5px;	padding: 10px;
+    padding-bottom:1px;
 }
 .main_image p {
 	font-size: 1.2em;
@@ -162,6 +167,7 @@ a {color: #fff;}
 	width: 100%;
 	display: none;
 }
+.desc { height:95px;}
 .main_image .block{
 	width: 100%;
 	background: #111;
