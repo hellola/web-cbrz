@@ -39,13 +39,50 @@ app.configure("development", function() {
 app.configure("production", function() {
     app.use(express.errorHandler());
 }); 
-config.init(app);
 
 app.get("/login", function(req, res) {
     res.render("login", {
         title: "Please login below"
     });
 }); 
+
+app.get("/admin/settings/", function(req, res) {
+    dbMan.appSettingsModel.findOne({},function(error,appSettings){
+        if(error){
+             throw error;
+        }
+        res.render("settings", {
+            title: "App Settings",
+            comicdir : appSettings ? appSettings.comicPath : '',
+            tempdir  : appSettings ? appSettings.tempPath : '',
+            thumbdir : appSettings ? appSettings.thumbPath : '',
+        });
+    });
+}); 
+
+app.post("/admin/settings/", function(req, res) {
+    dbMan.appSettingsModel.findOne({},function(error,appSettings){
+         if(error){
+            throw error
+         };
+         if(appSettings){
+             appSettings.comicPath = req.body.comicsdir; 
+             appSettings.tempPath = req.body.tempdir; 
+             appSettings.thumbPath = req.body.thumbdir; 
+             appSettings.save();
+             res.redirect('/admin/settings/');
+         }else{
+             newSettings = new dbMan.appSettingsModel(); 
+             newSettings.comicPath = req.body.comicsdir; 
+             newSettings.tempPath = req.body.tempdir; 
+             newSettings.thumbPath = req.body.thumbdir; 
+             newSettings.save();
+             res.redirect('/admin/settings/');
+         }
+    });
+}); 
+
+
 
 app.post("/login", function(req, res) {
     req.body.username ? dbMan.webUsersModel.findOne({
@@ -94,6 +131,16 @@ app.get("/viewImage/:comicBookHash/:index", function(req, res) {
 }); 
 
 app.get(/\/list\/(.*$)/, function(req, res) {
+    if (req.session.authed) {
+       if(config.comicdir == ''){
+            config.init(app,function(){
+                if(config.comicdir == ''){
+                    res.redirect("/admin/settings/");
+                }else{
+                    res.redirect('/'); 
+                }
+            });
+       }
        webcbr.listSimple(req.params[0], app,function(newfiles){
             res.render("list", {
                 title: "web cbr and cbz reader",
@@ -103,7 +150,8 @@ app.get(/\/list\/(.*$)/, function(req, res) {
                 }
             });
         });         
-    
+    } else res.redirect("/login");
+
 }); 
 
 app.get(/\/read\/(.*$)/, function(req, res) {
@@ -174,7 +222,9 @@ app.get("/clearDbStore/", function(req, res) {
 
 var everyone = nowjs.initialize(app);
 
-app.listen(3000, "0.0.0.0"); 
+config.init(app,function(){
+    app.listen(3000, "0.0.0.0"); 
+});
 webcbr.everyone = everyone; 
 webcbr.everyone.now.distribute = function(a) {
     everyone.now.receive("backend", a);

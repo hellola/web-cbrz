@@ -1,0 +1,12 @@
+div(id='details' ,class='monospace selection' , style='background-color:white;width:300px;margin-top:20px;padding:10px')
+    form(action='/admin/settings/',method='POST')
+         label(for='comicsdir',style='width:100px;display:inline-block') Comics Dir: 
+         input(id='comicsdir',type='text',name='comicsdir',value='#{comicdir}')
+         br
+         label(for='tempdir',style='width:100px;display:inline-block') Temp Dir: 
+         input(id='tempdir',type='text',name='tempdir',value='#{tempdir}')
+         br
+         label(for='thumbdir',style='width:100px;display:inline-block') Thumbs Dir : 
+         input(id='thumbdir',type='text',name='thumbdir',value='#{thumbdir}')
+         br
+         input(type='submit',value='Save')

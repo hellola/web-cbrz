@@ -1,3 +1,5 @@
+#Store options in the DB -- Done 
+Record per user what comics have been read and which pages , must include last read date
+Add list to the home page the lists the users last 10 or 5 comics
 Added the option that causes the comic to move to the last page the user has read
-Store options in the DB
 Added zoom image plugin when reading
