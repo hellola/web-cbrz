@@ -7,6 +7,7 @@ var util = require('util'),
 var model = require('./webcbr_models');
 var webcbr = {};
 var hashlib = require('hashlib');
+var archiveManager = require('./rarManager');
 webcbr.socketServer = {};
 
 var sort_by = function(field, reverse, primer){
@@ -251,9 +252,9 @@ var createComic = function(comicBookName, forceReload,callback) {
         }//make  a new one
         var pathToComic = pathFixer.join(config.comicdir,comicBookName)
 
-        extractFirstImageOnly(pathToComic,config.thumbdir,function(error,thumbImage){
+        archiveManager.extractFirstImageOnly(pathToComic,config.thumbdir,function(error,thumbImage){
             console.log('extracted first image');
-            webcbr.resizeImageToThumbnail(thumbImage,function(err,tinyImage){
+            archiveManager.resizeImageToThumbnail(thumbImage,function(err,tinyImage){
                 console.log('resized first image');
                 comicbook = new model.comicbook_model();
                 comicbook.name = comicBookName;

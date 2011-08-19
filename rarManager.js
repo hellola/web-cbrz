@@ -7,7 +7,7 @@ var im = require('imagemagick');
 
 var getFirstFileNameFromArchive = function(filepath,callback){
     var cmd = '';
-    cmd = '7z l "'+filepath + '"';
+    cmd = '7z l "'+filepath + '" -y';
     child = exec(cmd, function(error,stdout,stderr) {
             if (error !== null){
                 console.log('exec error: ' + error);
@@ -48,7 +48,6 @@ var getFirstFileNameFromArchive = function(filepath,callback){
 var extractFirstImageOnly = function(filepath,thumbdir,callback){
     getFirstFileNameFromArchive(filepath,function(error,firstFile){
         var cmd = '';
-        //'7z e tempother/Red\ Sonja\ v4\ 045\ \(2009\)\ \(oddBot-DCP\).cbz -otemp "Red Sonja v4 045 p001 [2009] (oddBot-DCP).jpg" -r'
         cmd = '7z e "'+filepath+'" -o"'+thumbdir+'" "'+firstFile+'" -r -y';
         child = exec(cmd, function(error,stdout,stderr) {
                 if (error !== null){
