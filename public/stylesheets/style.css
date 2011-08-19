@@ -228,3 +228,4 @@ html .image_thumb ul li h2 {
 	width: 170px;
 }	
 .image_thumb ul li p{display: none;}
+.overflowCont {overflow: auto;height:456px}

@@ -256,6 +256,7 @@ var createComic = function(comicBookName, forceReload,callback) {
             console.log('extracted first image');
             archiveManager.resizeImageToThumbnail(thumbImage,function(err,tinyImage){
                 console.log('resized first image');
+                fs.unlinkSync(thumbImage)
                 comicbook = new model.comicbook_model();
                 comicbook.name = comicBookName;
                 comicbook.hash = hashlib.md5(comicBookName);

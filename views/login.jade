@@ -1,7 +1,9 @@
-div(id='details' ,class='monospace selection')
+div(id='details' ,class='monospace selection' , style='background-color:white;width:300px;margin-top:20px;padding:10px')
     form(action='/login',method='POST')
-         p UserName : 
-            input(type='text',name='username')
-         p Password : 
-            input(type='password',name='password')
+         label(for='username',style='width:100px;display:inline-block') UserName : 
+         input(id='username',type='text',name='username')
+         br
+         label(for='password',style='width:100px;display:inline-block') Password : 
+         input(id='password',type='password',name='password')
+         br
          input(type='submit',value='login')

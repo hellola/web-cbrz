@@ -1,64 +1,65 @@
 script
-	$(document).ready(function() {	
+        $(document).ready(function() {  
 
-		//Show Banner
-		$(".main_image .desc").show(); //Show Banner
-		$(".main_image .block").animate({ opacity: 0.85 }, 1 ); //Set Opacity
-	
-		//Click and Hover events for thumbnail list
-		$(".image_thumb ul li:first").addClass('active'); 
-		$(".image_thumb ul li").click(function(){ 
-			//Set Variables
-			var imgAlt = $(this).find('img').attr("alt"); //Get Alt Tag of Image
-			var imgTitle = $(this).find('a').attr("href"); //Get Main Image URL
-			var imgDesc = $(this).find('.block').html(); 	//Get HTML of block
-			var imgDescHeight = $(".main_image").find('.block').height();	//Calculate height of block	
-			
-			if ($(this).is(".active")) {  //If it's already active, then...
-				return false; // Don't click through
-			} else {
-				//Animate the Teaser				
-				$(".main_image .block").animate({ opacity: 0, marginBottom: -imgDescHeight }, 250 , function() {
-					$(".main_image .block").html(imgDesc).animate({ opacity: 0.85,	marginBottom: "0" }, 250 );
-					$(".main_image img").attr({ src: imgTitle , alt: imgAlt});
-				});
-			}
-			
-			$(".image_thumb ul li").removeClass('active'); //Remove class of 'active' on all lists
-			$(this).addClass('active');  //add class of 'active' on this list only
-			return false;
-			
-		}) .hover(function(){
-			$(this).addClass('hover');
-			}, function() {
-			$(this).removeClass('hover');
-		});
-				
-		//Toggle Teaser
-		$("a.collapse").click(function(){
-			$(".main_image .block").slideToggle();
-			$("a.collapse").toggleClass("show");
-		});
-		
-	});//Close Function
+                //Show Banner
+                $(".main_image .desc").show(); //Show Banner
+                $(".main_image .block").animate({ opacity: 0.85 }, 1 ); //Set Opacity
+        
+                //Click and Hover events for thumbnail list
+                $(".image_thumb ul li:first").addClass('active'); 
+                $(".image_thumb ul li").click(function(){ 
+                        //Set Variables
+                        var imgAlt = $(this).find('img').attr("alt"); //Get Alt Tag of Image
+                        var imgTitle = $(this).find('a').attr("href"); //Get Main Image URL
+                        var imgDesc = $(this).find('.block').html();    //Get HTML of block
+                        var imgDescHeight = $(".main_image").find('.block').height();   //Calculate height of block     
+                        
+                        if ($(this).is(".active")) {  //If it's already active, then...
+                                return false; // Don't click through
+                        } else {
+                                //Animate the Teaser                            
+                                $(".main_image .block").animate({ opacity: 0, marginBottom: -imgDescHeight }, 250 , function() {
+                                        $(".main_image .block").html(imgDesc).animate({ opacity: 0.85,  marginBottom: "0" }, 250 );
+                                        $(".main_image img").attr({ src: imgTitle , alt: imgAlt});
+                                });
+                        }
+                        
+                        $(".image_thumb ul li").removeClass('active'); //Remove class of 'active' on all lists
+                        $(this).addClass('active');  //add class of 'active' on this list only
+                        return false;
+                        
+                }) .hover(function(){
+                        $(this).addClass('hover');
+                        }, function() {
+                        $(this).removeClass('hover');
+                });
+                                
+                //Toggle Teaser
+                $("a.collapse").click(function(){
+                        $(".main_image .block").slideToggle();
+                        $("a.collapse").toggleClass("show");
+                });
+                
+        });//Close Function
 
 div(id="main",class="container")
-	div(class="main_image")
-		img(src="/#{files[0].thumb}",alt="banner1")
-		div(class="desc")
-			a(href="#",class="collapse") Close Me!
-			div(class="block")
-				h2 #{files[0].name}.readme
-				a(href="/read/#{files[0].link}",class="readme") Read Me
-				
-	- each f in files 
-		div(class="image_thumb")
-			ul
-				li
-					a(href="/#{f.thumb}")
-						img(src="#{f.thumb}",alt="Slowing Dow")
-					div(class="block")
-						h2 #{f.name}
-						a(href="/read/#{f.link}") Read Me
-						p Some comic description
-	
+        div(class="main_image")
+                img(src="/#{files[0].thumb}",alt="banner1")
+                div(class="desc")
+                        a(href="#",class="collapse") Close Me!
+                        div(class="block")
+                                h2 #{files[0].name}.readme
+                                a(href="/read/#{files[0].link}",class="readme") Read Me
+                                
+        div(class='overflowCont')
+            - each f in files 
+                div(class="image_thumb")
+                        ul
+                                li
+                                        a(href="/#{f.thumb}")
+                                                img(src="/images/comic.png")
+                                        div(class="block")
+                                                h2 #{f.name}
+                                                a(href="/read/#{f.link}") Read Me
+                                                p Some comic description
+        
