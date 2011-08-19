@@ -5,7 +5,8 @@ var vows = require('vows'),
 
 var config = require('../config');
 var archiveManager = require('../rarManager');
-var comicName = 'Brave and the Bold 021 (2009) (Archangel-DCP).cbr';
+//var comicName = 'Brave and the Bold 021 (2009) (Archangel-DCP).cbr';
+var comicName = 'Unknown Soldier 009(Vertigo)(2009)(WildBlueZero).cbr';
 var comicNameZip = 'Red Sonja v4 045 (2009) (oddBot-DCP).cbz';
 
 vows.describe('Comic Book Commands').addBatch({
@@ -39,7 +40,6 @@ vows.describe('Comic Book Commands').addBatch({
             archiveManager.extractFirstImageOnly(pathFixer.join(config.comicdir,comicName),config.thumbdir,function(error,fullPath){
                     archiveManager.resizeImageToThumbnail(fullPath,function(error,smallFile){
                        fs.unlinkSync(fullPath)
-                       console.log('successfully deleted ');
                        test(error,smallFile) 
                     });
             });
@@ -84,7 +84,6 @@ vows.describe('Comic Book Commands').addBatch({
             archiveManager.extractFirstImageOnly(pathFixer.join(config.comicdir,comicNameZip),config.thumbdir,function(error,fullPath){
                     archiveManager.resizeImageToThumbnail(fullPath,function(error,smallFile){
                        fs.unlinkSync(fullPath)
-                       console.log('successfully deleted ');
                        test(error,smallFile) 
                     });
             });

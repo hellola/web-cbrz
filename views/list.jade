@@ -44,7 +44,7 @@ script
 
 div(id="main",class="container")
         div(class="main_image")
-                img(src="/#{files[0].thumb}",alt="banner1")
+                img(src="/thumbs/#{files[0].thumb}",alt="banner1")
                 div(class="desc")
                         a(href="#",class="collapse") Close Me!
                         div(class="block")
@@ -56,7 +56,7 @@ div(id="main",class="container")
                 div(class="image_thumb")
                         ul
                                 li
-                                        a(href="/#{f.thumb}")
+                                        a(href="/thumbs/#{f.thumb}")
                                                 img(src="/images/comic.png")
                                         div(class="block")
                                                 h2 #{f.name}

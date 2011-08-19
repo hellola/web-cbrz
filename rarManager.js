@@ -16,7 +16,7 @@ var getFirstFileNameFromArchive = function(filepath,callback){
             if(stdout){
                 var files = stdout.split('\n');
                 files = files.filter(function(val) {
-                    return val.substr(-3) === "jpg";
+                    return val.substr(-3).toLowerCase() === "jpg";
                 });
                 for(var i=0;i<files.length;i++){
                      var fileParts = files[i].trim().split(' ');
@@ -70,7 +70,7 @@ var extractFirstImageOnly = function(filepath,thumbdir,callback){
 };
 
 var resizeImageToThumbnail = function(fullPath,callback){
-    var smallImage = fullPath.replace('.jpg','-small.jpg');
+    var smallImage = fullPath.toLowerCase().replace('.jpg','-small.jpg');
     im.resize({ srcPath: fullPath,
                 dstPath: smallImage,
                 width:   600,

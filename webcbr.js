@@ -260,7 +260,9 @@ var createComic = function(comicBookName, forceReload,callback) {
                 comicbook = new model.comicbook_model();
                 comicbook.name = comicBookName;
                 comicbook.hash = hashlib.md5(comicBookName);
-                comicbook.thumbImage = tinyImage;
+                console.log();
+                var parts = tinyImage.split('/');
+                comicbook.thumbImage = parts[parts.length -1];
                 comicbook.save(function(err){
                    if(!err){
                         callback(comicbook);
