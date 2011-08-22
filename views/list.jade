@@ -11,14 +11,20 @@ script
                         //Set Variables
                         var imgAlt = $(this).find('img').attr("alt"); //Get Alt Tag of Image
                         var imgTitle = $(this).find('a').attr("href"); //Get Main Image URL
+                        var comicLink = $(this).find('.block h2 a').attr("href");    //Get HTML of block
                         var imgDesc = $(this).find('.block').html();    //Get HTML of block
                         var imgDescHeight = $(".main_image").find('.block').height();   //Calculate height of block     
-                        
+                        //If we have list in the title it means this is a directory and we should reload the page with its contents
+                        if(imgTitle.indexOf('/list') == 0){
+                            console.log(window.location.host + imgTitle);
+                            window.location.href = 'http://'+window.location.host + imgTitle; 
+                        }; 
                         if ($(this).is(".active")) {  //If it's already active, then...
                                 return false; // Don't click through
                         } else {
                                 //Animate the Teaser                            
                                 $(".main_image .block").animate({ opacity: 0, marginBottom: -imgDescHeight }, 250 , function() {
+                                        $("#mainlink").attr("href",comicLink);
                                         $(".main_image .block").html(imgDesc).animate({ opacity: 0.85,  marginBottom: "0" }, 250 );
                                         $(".main_image img").attr({ src: imgTitle , alt: imgAlt});
                                 });
@@ -44,22 +50,23 @@ script
 
 div(id="main",class="container")
         div(class="main_image")
-                img(src="/thumbs/#{files[0].thumb}",alt="banner1")
+            a(href="/read/#{files[0].link}",id='mainlink')
+                img(src="/thumbs/#{files[0].thumb}",alt="thumb")
                 div(class="desc")
                         a(href="#",class="collapse") Close Me!
                         div(class="block")
-                                h2 #{files[0].name}.readme
-                                a(href="/read/#{files[0].link}",class="readme") Read Me
+                                h2 #{files[0].name}
                                 
         div(class='overflowCont')
             - each f in files 
                 div(class="image_thumb")
-                        ul
-                                li
-                                        a(href="/thumbs/#{f.thumb}")
-                                                img(src="/images/comic.png")
-                                        div(class="block")
-                                                h2 #{f.name}
-                                                a(href="/read/#{f.link}") Read Me
-                                                p Some comic description
-        
+                    ul
+                        li
+                            - if (f.dir)
+                                a(href="/list/#{f.link}")
+                            - else 
+                                a(href="/thumbs/#{f.thumb}")
+                                    img(src="/images/comic.png")
+                            div(class="block")
+                                    h2 #{f.name}
+                                        a(href="/read/#{f.link}")

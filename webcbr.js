@@ -240,8 +240,7 @@ var createComic = function(comicBookName, forceReload,callback) {
             if (forceReload) {
                 comicbook.remove();
             }
-            else
-            {
+            else{
                 console.log('stopping comicbook create');
                 callback(comicbook);
                 return;
@@ -275,18 +274,18 @@ var createComic = function(comicBookName, forceReload,callback) {
 };
 
 var listSimple = function(path,app,callback) {
-    var relpath = "";
+    //If a path is passed in it means we are browsing a sub directory
+    //otherwise we use the root folder
     if (path == '') { 
         path = app.settings.comicdir
     } else { 
-        relpath = path; path = app.settings.comicdir + path
+        path = app.settings.comicdir + path
     }; 
-    if (relpath[0] == '/') { relpath = relpath.substr(1,relpath.length -1)}
-    if (relpath != '') { relpath = relpath + '/'}
     path = path.replace(/_/g,'/');
-    fils = fs.readdirSync(path); 
+    var fils = fs.readdirSync(path); 
     var files = fils.filter(function(v) { return /(\.(cbr|cbz)$)|(^[^\.]*$)/.test(v);});
     var newfiles = new Array();
+    //This is supposed to be the way to do a for loop async , its weird but it works
     var buildData = function(i){
        if(i < fils.length){
            var fpath = fils[i];
@@ -301,7 +300,7 @@ var listSimple = function(path,app,callback) {
                         buildData(i+1);
                 });
            }else{
-                newfiles.push({'name':fpath,'thumb':'','link':fpath});
+                newfiles.push({'name':fpath,'thumb':'','link':fpath,'dir':true});
                 buildData(i+1);
            }
        }else{
